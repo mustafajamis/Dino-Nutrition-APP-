@@ -1,97 +1,215 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 🚀 ShockShockers – Your Personal Nutrition Assistant  
 
-# Getting Started
+**ShockShockers** is a mobile application designed to help students make **healthier food choices** using **AI-driven meal recognition** and **personalized meal plans**. With features like **calorie estimation**, **daily intake tracking**, and **dining hall integration**, ShockShockers makes nutrition tracking effortless.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+---
 
-## Step 1: Start Metro
+## 📋 Table of Contents  
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- [✨ Features](#-features)  
+- [🚀 Getting Started](#-getting-started)  
+  - [Prerequisites](#prerequisites)  
+  - [Installation](#installation)  
+  - [Running the App](#running-the-app)  
+- [🏗 Technical Architecture](#-technical-architecture)  
+  - [Core Technologies](#core-technologies)  
+  - [Project Structure](#project-structure)  
+- [🤝 Contributing](#-contributing)  
+  - [Coding Standards](#coding-standards)  
+- [👥 Contributors](#-contributors)  
+- [❓ Troubleshooting](#-troubleshooting)  
+  - [Common Issues](#common-issues)  
+  - [Getting Help](#getting-help)  
+- [📄 License](#-license)  
+- [🎉 Acknowledgments](#-acknowledgments)  
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
 
+## ✨ Features  
+
+✅ **AI-Powered Meal Recognition** – Take a picture of your meal and get an estimated calorie count.  
+✅ **Daily Calorie Tracking** – Log meals and track daily intake.  
+✅ **Personalized Meal Plans** – Get tailored meal recommendations based on dietary preferences.  
+✅ **Dining Hall Integration** – View meal options available in university dining halls.  
+✅ **Nutritional Insights** – Receive detailed reports on eating habits.  
+✅ **Progress Tracking** – Monitor long-term nutrition trends and improvements.  
+
+---
+
+## 🚀 Getting Started  
+
+### Prerequisites  
+
+Before you begin, ensure you have the following installed:  
+
+- **Node.js** (v16 or higher)  
+- **Yarn** (or npm) package manager  
+- **React Native CLI**  
+- **Xcode** (Mac only, for iOS development)  
+- **Android Studio** (for Android development)  
+- **Git** (for version control)  
+
+---
+
+### Installation  
+
+Clone the repository:  
 ```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+git clone https://github.com/mustafajamis/Dino-Nutrition-APP.git
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
+Navigate to the project directory:  
 ```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+cd Dino-Nutrition-APP
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
+Install dependencies:  
 ```sh
-bundle install
+yarn install
 ```
 
-Then, and every time you update your native dependencies, run:
-
+For iOS (Mac only):  
 ```sh
-bundle exec pod install
+cd ios && pod install && cd ..
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+---
 
+### Running the App  
+
+#### For Android:  
 ```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+npx react-native run-android
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+#### For iOS:  
+```sh
+npx react-native run-ios
+```
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+#### For Development:  
+```sh
+npx react-native start
+```
 
-## Step 3: Modify your app
+---
 
-Now that you have successfully run the app, let's make changes!
+## 🏗 Technical Architecture  
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+### Core Technologies  
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+- **React Native** – Cross-platform mobile development  
+- **TypeScript (if used)** – Strongly typed JavaScript for reliability  
+- **Python (Flask/FastAPI)** – Backend API services  
+- **TensorFlow/Keras** – AI-based meal recognition  
+- **PostgreSQL / Firebase** – Database for user data  
+- **AWS S3 / Google Cloud Storage** – Storing meal images  
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+---
 
-## Congratulations! :tada:
+### Project Structure  
 
-You've successfully run and modified your React Native App. :partying_face:
+```
+Dino-Nutrition-APP/
+├── src/
+│   ├── components/    # Reusable UI components
+│   ├── screens/       # Screen components
+│   ├── services/      # API and business logic
+│   ├── store/         # State management (Redux/Zustand/Context)
+│   ├── assets/        # Images, fonts, etc.
+│   ├── utils/         # Helper functions
+│   ├── navigation/    # React Navigation setup
+│   ├── hooks/         # Custom React hooks
+├── android/           # Android-specific files
+├── ios/               # iOS-specific files
+├── __tests__/         # Test files
+├── package.json       # Dependencies and scripts
+└── README.md          # Documentation
+```
 
-### Now what?
+---
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+## 🤝 Contributing  
 
-# Troubleshooting
+We welcome contributions! Here's how you can contribute:  
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+1. **Fork the repository**  
+2. **Create a feature branch**:  
+   ```sh
+   git checkout -b feature/amazing-feature
+   ```
+3. **Commit your changes**:  
+   ```sh
+   git commit -m "Add amazing feature"
+   ```
+4. **Push to your branch**:  
+   ```sh
+   git push origin feature/amazing-feature
+   ```
+5. **Open a Pull Request**  
 
-# Learn More
+---
 
-To learn more about React Native, take a look at the following resources:
+### Coding Standards  
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+- Follow the **React Native & TypeScript (if applicable) style guide**  
+- Write **clear and meaningful commit messages**  
+- Include **tests for new features**  
+- Update documentation when necessary  
+
+---
+
+## 👥 Contributors  
+
+🚀 **Mustafa Jamshidi** – Lead Developer & Founder  
+🎨 **[Your Contributors Here]**  
+
+---
+
+## ❓ Troubleshooting  
+
+### Common Issues  
+
+#### **Build Failures**  
+
+- Clear the cache and reinstall dependencies:  
+  ```sh
+  yarn clean && yarn install
+  ```
+
+#### **iOS Issues**  
+
+- Reset iOS dependencies:  
+  ```sh
+  cd ios && pod deintegrate && pod install
+  ```
+
+#### **Android Issues**  
+
+- Clear Gradle cache:  
+  ```sh
+  cd android && ./gradlew clean
+  ```
+
+---
+
+### Getting Help  
+
+- Open an **issue** for bugs  
+- Join **discussions** for questions  
+- Submit **pull requests** for contributions  
+
+---
+
+## 📄 License  
+
+This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.  
+
+---
+
+## 🎉 Acknowledgments  
+
+💡 Thanks to all contributors!  
+🚀 Built with **React Native**, **Python**, and **AI-powered meal recognition**  
+📢 Inspired by the idea of making **healthy eating effortless for students**  
+
