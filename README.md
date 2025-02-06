@@ -161,9 +161,13 @@ We welcome contributions! Here's how you can contribute:
 
 ## 👥 Contributors  
 
-🚀 **Mustafa Jamshidi** – Lead Developer & Founder  
-🎨 **Kyle Liu** - Lead Engineer
-🎨 **Minh-Tri Bui**  - Lead Engineer
+Thank you to all our amazing contributors who have helped make Dino possible!
+
+### Core Team
+
+- [Minh-Tri Bui]
+- [Mustafa Jamshidi](https://github.com/mustafajamis)
+- [Kyle Liu]
 
 ---
 
