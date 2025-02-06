@@ -162,7 +162,8 @@ We welcome contributions! Here's how you can contribute:
 ## 👥 Contributors  
 
 🚀 **Mustafa Jamshidi** – Lead Developer & Founder  
-🎨 **[Your Contributors Here]**  
+🎨 **Kyle Liu** - Lead Engineer
+🎨 **Minh-Tri Bui**  - Lead Engineer
 
 ---
 
