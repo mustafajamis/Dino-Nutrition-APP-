@@ -1,6 +1,6 @@
 # 🚀 Dino – Your Personal Nutrition Assistant  
 
-**Dino** is a mobile application designed to help students make **healthier food choices** using **AI-driven meal recognition** and **personalized meal plans**. With features like **calorie estimation**, **daily intake tracking**, and **dining hall integration**, ShockShockers makes nutrition tracking effortless.
+**Dino** is a mobile application designed to help students make **healthier food choices** using **AI-driven meal recognition** and **personalized meal plans**. With features like **calorie estimation**, **daily intake tracking**, and **dining hall integration**, Dino makes nutrition tracking effortless.
 
 ---
 
