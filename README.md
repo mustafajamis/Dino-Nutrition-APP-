@@ -65,7 +65,7 @@ cd Dino-Nutrition-APP
 
 Install dependencies:  
 ```sh
-yarn install
+npm install --legacy-peer-deps
 ```
 
 For iOS (Mac only):  
