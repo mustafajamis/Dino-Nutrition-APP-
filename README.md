@@ -55,7 +55,7 @@ Before you begin, ensure you have the following installed:
 
 Clone the repository:  
 ```sh
-git clone https://github.com/mustafajamis/Dino-Nutrition-APP.git
+git clone https://github.com/mustafajamis/Dino-Nutrition-APP-.git
 ```
 
 Navigate to the project directory:  
