@@ -111,20 +111,49 @@ npx react-native start
 
 ```
 Dino-Nutrition-APP/
-├── src/
-│   ├── components/    # Reusable UI components
-│   ├── screens/       # Screen components
-│   ├── services/      # API and business logic
-│   ├── store/         # State management (Redux/Zustand/Context)
-│   ├── assets/        # Images, fonts, etc.
-│   ├── utils/         # Helper functions
-│   ├── navigation/    # React Navigation setup
-│   ├── hooks/         # Custom React hooks
-├── android/           # Android-specific files
-├── ios/               # iOS-specific files
-├── __tests__/         # Test files
-├── package.json       # Dependencies and scripts
-└── README.md          # Documentation
+│
+├── assets/                 # All static assets
+│   ├── images/             # App images
+│   ├── fonts/              # Custom fonts
+│   └── icons/              # SVGs or icon sets (optional)
+│
+├── components/             # Reusable UI components (buttons, cards, etc.)
+│   ├── Button/
+│   ├── Header/
+│   └── FoodCard/
+│
+├── constants/              # App-wide constants (colors, strings, etc.)
+│   ├── colors.js
+│   ├── images.js
+│   └── fonts.js
+│
+├── navigation/             # React Navigation setup
+│   ├── AppNavigator.js
+│   └── TabNavigator.js
+│
+├── screens/                # One folder per screen
+│   ├── Welcome/
+│   ├── Onboarding/
+│   ├── Login/
+│   ├── Home/
+│   ├── ScanFood/
+│   ├── Calories/
+│   ├── Activity/
+│   ├── Profile/
+│   └── Settings/
+│
+├── context/                # Context API setup (auth, theme, etc.)
+│   └── AuthContext.js
+│
+├── services/               # API services or async functions
+│   └── foodRecognitionAPI.js
+│
+├── utils/                  # Helper functions
+│   └── formatCalories.js
+│
+├── App.js
+├── package.json
+└── README.md
 ```
 
 ---
