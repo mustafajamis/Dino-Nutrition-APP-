@@ -1,102 +1,100 @@
-/**
- * Sample React Native App in JavaScript
- * Converted from TypeScript
- *
- * @format
- */
-
 import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-const Section = ({ title, children }) => {
-  const isDarkMode = useColorScheme() === 'dark';
+export default function GetStartedScreen() {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          { color: isDarkMode ? Colors.white : Colors.black },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          { color: isDarkMode ? Colors.light : Colors.dark },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.container}>
+
+      <Text style={styles.logo}>DINO</Text>
+
+      <View style={styles.textContainer}>
+
+        <Image 
+        source = {require('./assets/image/DinoLog.png')} 
+        style ={styles.image}
+        />
+        <Text style={styles.title}>Eat Healthy</Text>
+        <Text style={styles.subtitle}>Maintaining good health should be the primary focus of everyone.</Text>
+      </View>
+
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Get Started</Text>
+        </TouchableOpacity>
+        
+        
+        <Text style={styles.loginText}>Already have an account?</Text>
+          
+          <TouchableOpacity onPress={() => console.log('Navigate to Login')}>
+      <Text style={styles.loginButtonText}> Log In</Text>
+    </TouchableOpacity>
+
+      </View>
+
     </View>
   );
-};
+}
 
-const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView contentInsetAdjustmentBehavior="automatic" style={backgroundStyle}>
-        <Header />
-        <View style={{ backgroundColor: isDarkMode ? Colors.black : Colors.white }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+const { height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  logo: { 
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#A2C79A',
+    marginTop: 0,
+   
+
   },
-  sectionDescription: {
+  textContainer: {
+    alignItems: 'center',
+    marginBottom: 200,
+    marginHorizontal: 40,
+    marginTop: 100
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666666',
     marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+    textAlign: 'center',
   },
-  highlight: {
-    fontWeight: '700',
+  bottomContainer: {
+    position: 'absolute',
+    bottom: height / 4,
+    width: '100%',
+    alignItems: 'center',
+  },
+  button: {
+    backgroundColor: '#A2C79A',
+    paddingVertical: 15,
+    paddingHorizontal: 80,
+    borderRadius: 20,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  image: {
+    width: 150, // changes size of image
+    height: 150, //changes height of image
+    resizeMode: 'contain', //makes sure its proportionate
+    marginBottom: 10, 
+  },
+  loginButtonText: {
+    color: '#A2C79A',   // green
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
-
-export default App;
