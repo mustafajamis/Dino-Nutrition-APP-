@@ -1,106 +1,171 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 
-export default function OnBoardingPage1() {
-  const navigation = useNavigation();
 
+
+const WelcomeHeader = () => {
   return (
-    <View style={styles.container}>
-      {/* App logo title */}
-      <Text style={styles.logo}>DINO</Text>
+    <View style={styles.welcomeContainer}>
+      <Text style={styles.welcomeTitle}>Dino</Text>
+      <Image
+        source={require('../../assets/image/OnBoardingPage1.gif')}
+        style={styles.welcomeImage}
+      />
+    </View>
+  );
+};
 
-      {/* Center image and motivational message */}
-      <View style={styles.textContainer}>
-        <Image 
-          source={require('../../assets/image/DinoLog.png')} 
-          style={styles.image}
-        />
-        <Text style={styles.title}>Eat Healthy</Text>
-        <Text style={styles.subtitle}>
-          Maintaining good health should be the primary focus of everyone.
-        </Text>
-      </View>
+const ContentSection = () => {
+  return (
+    <View style={styles.contentContainer}>
+      <Text style={styles.contentTitle}>Eat Healthy</Text>
+      <Text style={styles.contentDescription}>
+        Maintaining good health should be the primary focus of everyone.
+      </Text>
+    </View>
+  );
+};
 
-      {/* Bottom buttons */}
-      <View style={styles.bottomContainer}>
-        {/* For now just log action */}
-        <TouchableOpacity style={styles.button} onPress={() => console.log('Get Started pressed')}>
-          <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
+const ProgressIndicator = () => {
+  return (
+    <View style={styles.progressContainer}>
+      <View style={styles.activeDot} />
+      <View style={styles.inactiveDot} />
+    </View>
+  );
+};
 
-        <Text style={styles.loginText}>Already have an account?</Text>
-        <TouchableOpacity onPress={() => console.log('Navigate to Login')}>
-          <Text style={styles.loginButtonText}> Log In</Text>
-        </TouchableOpacity>
+const ActionButtons = () => {
+  return (
+    <View style={styles.actionContainer}>
+      <TouchableOpacity style={styles.actionButton}>
+        <Text style={styles.buttonText}>Get Started</Text>
+      </TouchableOpacity>
+      <View style={styles.loginContainer}>
+        <Text style={styles.loginText}>Already Have An Account? </Text>
+        <Text style={styles.loginLink}>Log In</Text>
       </View>
     </View>
   );
-}
+};
 
-const { height } = Dimensions.get('window');
+const InputDesign = () => {
+  return (
+    <View style={styles.container}>
+     
+      <View style={styles.content}>
+        <WelcomeHeader />
+        <ContentSection />
+        <ProgressIndicator />
+        <ActionButtons />
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
+    width: "100%",
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#FFFFFF",
   },
-  logo: { 
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#A2C79A',
-    marginTop: 0,
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
   },
-  textContainer: {
-    alignItems: 'center',
-    marginBottom: 200,
-    marginHorizontal: 40,
-    marginTop: 100,
+
+  // Welcome Header Styles
+  welcomeContainer: {
+    alignItems: "center",
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#000000',
+  welcomeTitle: {
+    color: "#CFE7CB",
+    fontFamily: "Nunito",
+    fontSize: 25,
+    fontWeight: "800",
+    marginTop: 66,
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#666666',
-    marginTop: 8,
-    textAlign: 'center',
+  welcomeImage: {
+    width: 190,
+    height: 190,
+    marginTop: 93,
   },
-  bottomContainer: {
-    position: 'absolute',
-    bottom: height / 4,
-    width: '100%',
-    alignItems: 'center',
+  // Content Section Styles
+  contentContainer: {
+    alignItems: "center",
+    marginTop: 43,
   },
-  button: {
-    backgroundColor: '#A2C79A',
-    paddingVertical: 15,
-    paddingHorizontal: 80,
-    borderRadius: 20,
+  contentTitle: {
+    color: "rgba(0,0,0,0.85)",
+    fontFamily: "Signika",
+    fontSize: 25,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  contentDescription: {
+    color: "rgba(0,0,0,0.45)",
+    fontFamily: "Signika",
+    fontSize: 17,
+    fontWeight: "400",
+    maxWidth: 272,
+    textAlign: "center",
+  },
+  // Progress Indicator Styles
+  progressContainer: {
+    flexDirection: "row",
+    gap: 5,
+    marginTop: 11,
+  },
+  activeDot: {
+    height: 11,
+    width: 22,
+    left: 150,
+    borderRadius: 16,
+    backgroundColor: "#FF8473",
+  },
+  inactiveDot: {
+    height: 11,
+    width: 13,
+    left: 150,
+    borderRadius: 16,
+    backgroundColor: "#FFC0B8",
+  },
+  // Action Buttons Styles
+  actionContainer: {
+    marginTop: 43,
+    alignItems: "center",
+    gap: 15,
+  },
+  actionButton: {
+    width: 290,
+    height: 72,
+    borderRadius: 24,
+    backgroundColor: "#91C788",
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonText: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
+    color: "#FFF",
+    fontFamily: "Signika",
+    fontSize: 25,
+    fontWeight: "600",
+    letterSpacing: 1.25,
   },
-  image: {
-    width: 150,
-    height: 150,
-    resizeMode: 'contain',
-    marginBottom: 10, 
-  },
-  loginButtonText: {
-    color: '#A2C79A',
-    fontSize: 14,
-    fontWeight: 'bold',
+  loginContainer: {
+    flexDirection: "row",
   },
   loginText: {
-    marginTop: 10,
-    fontSize: 14,
-    color: '#666666',
+    color: "#7C7C7C",
+    fontFamily: "Signika",
+    fontSize: 17,
+    fontWeight: "400",
+  },
+  loginLink: {
+    color: "#91C788",
+    fontFamily: "Signika",
+    fontSize: 17,
+    fontWeight: "700",
   },
 });
+
+export default InputDesign;
