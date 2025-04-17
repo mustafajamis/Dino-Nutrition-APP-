@@ -1,15 +1,17 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 
-
+// Get device screen dimensions
+const { width, height } = Dimensions.get("window");
 
 const WelcomeHeader = () => {
   return (
     <View style={styles.welcomeContainer}>
       <Text style={styles.welcomeTitle}>Dino</Text>
       <Image
-        source={require('../../assets/image/OnBoardingPage1.gif')}
+        source={require("../../assets/image/OnBoardingPage1.gif")}
         style={styles.welcomeImage}
+        resizeMode="contain"
       />
     </View>
   );
@@ -29,7 +31,9 @@ const ContentSection = () => {
 const ProgressIndicator = () => {
   return (
     <View style={styles.progressContainer}>
+      {/* Active page dot */}
       <View style={styles.activeDot} />
+      {/* Inactive page dot */}
       <View style={styles.inactiveDot} />
     </View>
   );
@@ -38,9 +42,12 @@ const ProgressIndicator = () => {
 const ActionButtons = () => {
   return (
     <View style={styles.actionContainer}>
+      {/* CTA button */}
       <TouchableOpacity style={styles.actionButton}>
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
+
+      {/* Redirect to login section */}
       <View style={styles.loginContainer}>
         <Text style={styles.loginText}>Already Have An Account? </Text>
         <Text style={styles.loginLink}>Log In</Text>
@@ -52,7 +59,6 @@ const ActionButtons = () => {
 const InputDesign = () => {
   return (
     <View style={styles.container}>
-     
       <View style={styles.content}>
         <WelcomeHeader />
         <ContentSection />
@@ -63,6 +69,7 @@ const InputDesign = () => {
   );
 };
 
+// Styles using responsive layout techniques
 const styles = StyleSheet.create({
   container: {
     width: "100%",
@@ -71,74 +78,77 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: width * 0.05, // 5% of screen width padding
   },
 
-  // Welcome Header Styles
+  // Header section with title and image
   welcomeContainer: {
     alignItems: "center",
+    marginTop: height * 0.08, // 8% vertical margin from top
   },
   welcomeTitle: {
     color: "#CFE7CB",
     fontFamily: "Nunito",
-    fontSize: 25,
+    fontSize: width * 0.07, // Dynamic font size based on screen width
     fontWeight: "800",
-    marginTop: 66,
   },
   welcomeImage: {
-    width: 190,
-    height: 190,
-    marginTop: 93,
+    width: width * 0.5,
+    height: width * 0.5,
+    marginTop: height * 0.08,
   },
-  // Content Section Styles
+
+  // Middle content area
   contentContainer: {
     alignItems: "center",
-    marginTop: 43,
+    marginTop: height * 0.05,
   },
   contentTitle: {
     color: "rgba(0,0,0,0.85)",
     fontFamily: "Signika",
-    fontSize: 25,
+    fontSize: width * 0.06,
     fontWeight: "600",
     marginBottom: 8,
   },
   contentDescription: {
     color: "rgba(0,0,0,0.45)",
     fontFamily: "Signika",
-    fontSize: 17,
+    fontSize: width * 0.045,
     fontWeight: "400",
-    maxWidth: 272,
+    maxWidth: width * 0.8,
     textAlign: "center",
   },
-  // Progress Indicator Styles
+
+  // Progress indicator section
   progressContainer: {
     flexDirection: "row",
-    gap: 5,
-    marginTop: 11,
+    justifyContent: "center",
+    marginTop: height * 0.02,
   },
   activeDot: {
     height: 11,
     width: 22,
-    left: 150,
     borderRadius: 16,
     backgroundColor: "#FF8473",
+    marginHorizontal: 3,
   },
   inactiveDot: {
     height: 11,
     width: 13,
-    left: 150,
     borderRadius: 16,
     backgroundColor: "#FFC0B8",
+    marginHorizontal: 3,
   },
-  // Action Buttons Styles
+
+  // Bottom call-to-action and login
   actionContainer: {
-    marginTop: 43,
+    marginTop: height * 0.06,
     alignItems: "center",
     gap: 15,
   },
   actionButton: {
-    width: 290,
-    height: 72,
+    width: width * 0.8, // 80% of screen width
+    height: height * 0.08,
     borderRadius: 24,
     backgroundColor: "#91C788",
     justifyContent: "center",
@@ -147,23 +157,24 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FFF",
     fontFamily: "Signika",
-    fontSize: 25,
+    fontSize: width * 0.055,
     fontWeight: "600",
     letterSpacing: 1.25,
   },
   loginContainer: {
     flexDirection: "row",
+    marginTop: 10,
   },
   loginText: {
     color: "#7C7C7C",
     fontFamily: "Signika",
-    fontSize: 17,
+    fontSize: width * 0.04,
     fontWeight: "400",
   },
   loginLink: {
     color: "#91C788",
     fontFamily: "Signika",
-    fontSize: 17,
+    fontSize: width * 0.04,
     fontWeight: "700",
   },
 });
