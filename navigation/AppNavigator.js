@@ -1,19 +1,17 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import OnBoardingPage1 from '../screens/OnBoarding/OnBoardingPage1';
+import {createStackNavigator} from '@react-navigation/stack';
+import WelcomePage from '../screens/Welcome/WelcomePage';
+import OnboardingWrapper from '../screens/OnBoarding/OnboardingWrapper';
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
   return (
-    <Stack.Navigator
-      initialRouteName="OnBoard1"
-      screenOptions={{ headerShown: false }}
-    >
-      {/* Only one onboarding screen for now */}
-      <Stack.Screen name="OnBoard1" component={OnBoardingPage1} />
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="Welcome" component={WelcomePage} />
+      <Stack.Screen name="Onboarding" component={OnboardingWrapper} />
     </Stack.Navigator>
   );
 };
 
-export default AppNavigator; 
+export default AppNavigator;
