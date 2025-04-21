@@ -9,7 +9,7 @@ export default function GreenScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigation.replace('Onboarding'); // Navigate to your onboarding screen
-    }, 3000); // 3 seconds
+    }, 1000); // 1 seconds
 
     return () => clearTimeout(timer); // Clean up if screen unmounts early
   }, [navigation]);
