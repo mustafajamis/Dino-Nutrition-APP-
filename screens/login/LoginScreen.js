@@ -20,7 +20,7 @@ const LoginScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       {/* Top Green Wave using SVG */}
       <Svg
-        height="200"
+        height="90"
         width={width}
         viewBox="0 0 1440 320"
         style={styles.greenWave}>
@@ -65,11 +65,12 @@ const LoginScreen = ({navigation}) => {
         </TouchableOpacity>
 
         {/* Footer */}
-        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-          <Text style={styles.footerText}>
-            Don’t have an account? <Text style={styles.link}>Sign up</Text>
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.footerContainer}>
+          <Text style={styles.footerText}>Don't have an account</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+            <Text style={[styles.link]}> Sign up</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     marginTop: 160,
   },
   title: {
-    fontSize: 22,
+    fontSize: 32,
     color: '#91C788',
     fontWeight: 'bold',
     marginBottom: 30,
@@ -116,6 +117,10 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
   },
+  inputIcon: {
+    fontSize: 16,
+    marginLeft: 8,
+  },
   loginButton: {
     backgroundColor: '#91C788',
     borderRadius: 10,
@@ -128,13 +133,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-  footerText: {
-    textAlign: 'center',
+  footerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: 20,
+  },
+  footerText: {
     color: '#555',
+    fontSize: 14,
   },
   link: {
     color: '#91C788',
     fontWeight: 'bold',
+    fontSize: 14,
   },
 });
