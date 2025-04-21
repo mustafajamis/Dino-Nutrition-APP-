@@ -20,9 +20,10 @@ const SignupScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       {/* Top Green Wave using SVG */}
       <Svg
-        height="200"
+        height="90"
         width={width}
         viewBox="0 0 1440 320"
+        Í
         style={styles.greenWave}>
         <Path
           fill="#91C788"
@@ -32,7 +33,8 @@ const SignupScreen = ({navigation}) => {
 
       {/* Signup Form */}
       <View style={styles.formContainer}>
-        <Text style={styles.title}>Start your healthy with Dino Today</Text>
+        <Text style={styles.title}>Start your healthy with</Text>
+        <Text style={styles.cotitle}>Dino Today</Text>
 
         {/* Username */}
         <Text style={styles.label}>Username</Text>
@@ -70,12 +72,7 @@ const SignupScreen = ({navigation}) => {
             autoCorrect={false}
           />
           <TouchableOpacity onPress={() => setSecureText(!secureText)}>
-            <Icon
-              name={secureText ? 'eye-off' : 'eye'}
-              size={20}
-              color="#888"
-              style={{marginLeft: 10}}
-            />
+            <Text style={styles.inputIcon}>👁️</Text>
           </TouchableOpacity>
         </View>
 
@@ -85,11 +82,12 @@ const SignupScreen = ({navigation}) => {
         </TouchableOpacity>
 
         {/* Footer */}
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.footerText}>
-            Already have an account? <Text style={styles.link}>Login</Text>
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.footerContainer}>
+          <Text style={styles.footerText}>Already have an account?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <Text style={[styles.link]}> Login</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -111,10 +109,17 @@ const styles = StyleSheet.create({
     marginTop: 160,
   },
   title: {
-    fontSize: 22,
+    fontSize: 32,
     color: '#91C788',
     fontWeight: 'bold',
     marginBottom: 30,
+    alignSelf: 'center',
+  },
+  cotitle: {
+    fontSize: 42,
+    color: '#91C788',
+    fontWeight: 'bold',
+    marginBottom: 50,
     alignSelf: 'center',
   },
   label: {
@@ -152,10 +157,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-  footerText: {
-    textAlign: 'center',
+  footerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: 20,
+  },
+  footerText: {
     color: '#555',
+    fontSize: 14,
   },
   link: {
     color: '#91C788',
