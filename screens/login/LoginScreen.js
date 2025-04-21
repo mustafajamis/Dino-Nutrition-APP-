@@ -92,10 +92,10 @@ const styles = StyleSheet.create({
     marginTop: 160,
   },
   title: {
-    fontSize: 32,
+    fontSize: 42,
     color: '#91C788',
     fontWeight: 'bold',
-    marginBottom: 30,
+    marginBottom: 150,
     alignSelf: 'center',
   },
   label: {
