@@ -22,6 +22,27 @@ const CreateProfileScreen = () => {
 
   const genders = ['Male', 'Female', 'Non'];
 
+  // Formats phone number to (XXX) XXX-XXXX
+  const formatPhoneNumber = value => {
+    const digits = value.replace(/\D/g, '').slice(0, 10);
+    const area = digits.slice(0, 3);
+    const mid = digits.slice(3, 6);
+    const last = digits.slice(6, 10);
+
+    if (digits.length < 4) {
+      return `(${area}`;
+    }
+    if (digits.length < 7) {
+      return `(${area}) ${mid}`;
+    }
+    return `(${area}) ${mid}-${last}`;
+  };
+
+  const handlePhoneChange = text => {
+    const cleaned = text.replace(/\D/g, '');
+    setPhone(formatPhoneNumber(cleaned));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Back button */}
@@ -83,20 +104,16 @@ const CreateProfileScreen = () => {
       <Text style={styles.label}>Phone number</Text>
       <TextInput
         style={styles.inputField}
-        placeholder="Enter your phone number"
+        placeholder="(XXX) XXX-XXXX"
         keyboardType="phone-pad"
         value={phone}
-        onChangeText={setPhone}
+        onChangeText={handlePhoneChange}
       />
 
       {/* Next Button */}
       <TouchableOpacity style={styles.primaryButton}>
         <Text style={styles.buttonText}>Next</Text>
       </TouchableOpacity>
-
-      {/* <TouchableOpacity>
-        <Text style={styles.skip}>Skip</Text>
-      </TouchableOpacity> */}
     </SafeAreaView>
   );
 };
@@ -167,14 +184,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: width * 0.045,
   },
-  /*
-  skip: {
-    textAlign: 'center',
-    color: '#777',
-    marginTop: height * 0.015,
-    fontSize: width * 0.04,
-  },
-*/
 });
 
 export default CreateProfileScreen;
