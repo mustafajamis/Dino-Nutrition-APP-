@@ -10,6 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import CountryPicker from 'react-native-country-picker-modal';
 
 const {width, height} = Dimensions.get('window');
 
@@ -19,43 +20,21 @@ const CreateProfileScreen = () => {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('US');
+  const [callingCode, setCallingCode] = useState('1');
 
   const genders = ['Male', 'Female', 'Non'];
 
-  // Formats phone number to (XXX) XXX-XXXX
-  const formatPhoneNumber = value => {
-    const digits = value.replace(/\D/g, '').slice(0, 10);
-    const area = digits.slice(0, 3);
-    const mid = digits.slice(3, 6);
-    const last = digits.slice(6, 10);
-
-    if (digits.length < 4) {
-      return `(${area}`;
-    }
-    if (digits.length < 7) {
-      return `(${area}) ${mid}`;
-    }
-    return `(${area}) ${mid}-${last}`;
-  };
-
-  const handlePhoneChange = text => {
-    const cleaned = text.replace(/\D/g, '');
-    setPhone(formatPhoneNumber(cleaned));
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      {/* Back button */}
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         style={{marginLeft: 20, marginTop: 10}}>
         <Text style={{fontSize: 15}}>{'<'}</Text>
       </TouchableOpacity>
 
-      {/* Title */}
       <Text style={[styles.title, {marginTop: 10}]}>Create account</Text>
 
-      {/* Avatar + Gender selection */}
       <View style={{alignItems: 'center', marginVertical: 10}}>
         <Image
           source={require('../../assets/icons/Mustafa.png')}
@@ -63,7 +42,6 @@ const CreateProfileScreen = () => {
           resizeMode="contain"
         />
         <Text style={styles.genderLabel}>Gender</Text>
-
         <View style={styles.genderContainer}>
           {genders.map(g => (
             <TouchableOpacity
@@ -81,7 +59,6 @@ const CreateProfileScreen = () => {
         </View>
       </View>
 
-      {/* Name Input */}
       <Text style={styles.label}>Your Name</Text>
       <TextInput
         style={styles.inputField}
@@ -90,7 +67,6 @@ const CreateProfileScreen = () => {
         onChangeText={setName}
       />
 
-      {/* Age Input */}
       <Text style={styles.label}>Your Age</Text>
       <TextInput
         style={styles.inputField}
@@ -100,17 +76,29 @@ const CreateProfileScreen = () => {
         onChangeText={setAge}
       />
 
-      {/* Phone Number Input */}
       <Text style={styles.label}>Phone number</Text>
-      <TextInput
-        style={styles.inputField}
-        placeholder="(XXX) XXX-XXXX"
-        keyboardType="phone-pad"
-        value={phone}
-        onChangeText={handlePhoneChange}
-      />
+      <View style={styles.phoneRow}>
+        <CountryPicker
+          countryCode={countryCode}
+          withFilter
+          withFlag
+          withCallingCode
+          withEmoji
+          withCallingCodeButton
+          onSelect={country => {
+            setCountryCode(country.cca2);
+            setCallingCode(country.callingCode[0]);
+          }}
+        />
+        <TextInput
+          style={styles.inputFieldFlex}
+          placeholder="(XXX) XXX-XXXX"
+          keyboardType="phone-pad"
+          value={phone}
+          onChangeText={setPhone}
+        />
+      </View>
 
-      {/* Next Button */}
       <TouchableOpacity style={styles.primaryButton}>
         <Text style={styles.buttonText}>Next</Text>
       </TouchableOpacity>
@@ -170,6 +158,21 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     fontSize: width * 0.045,
     marginBottom: height * 0.02,
+  },
+  phoneRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: width * 0.05,
+    marginBottom: height * 0.02,
+  },
+  inputFieldFlex: {
+    backgroundColor: '#CFE7CB',
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+    fontSize: width * 0.045,
+    flex: 1,
   },
   primaryButton: {
     backgroundColor: '#91C788',
