@@ -76,8 +76,9 @@ const SignupScreen = ({navigation}) => {
           </TouchableOpacity>
         </View>
 
-        {/* Signup Button */}
-        <TouchableOpacity style={styles.signupButton}>
+        <TouchableOpacity
+          style={styles.signupButton}
+          onPress={() => navigation.navigate('CreateProfile')}>
           <Text style={styles.loginText}>Signup</Text>
         </TouchableOpacity>
 
