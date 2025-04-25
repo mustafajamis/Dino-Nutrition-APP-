@@ -53,7 +53,7 @@ const SignupScreen = ({navigation}) => {
         <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
-            placeholder="you@example.com"
+            placeholder="Dino@yahoo.com"
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
@@ -94,7 +94,9 @@ const SignupScreen = ({navigation}) => {
 };
 
 export default SignupScreen;
+import {responsiveStyles as styles} from '../../style/ResponsiveUI';
 
+/*
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -171,3 +173,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+*/
