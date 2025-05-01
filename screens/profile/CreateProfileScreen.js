@@ -99,7 +99,9 @@ const CreateProfileScreen = () => {
         />
       </View>
 
-      <TouchableOpacity style={styles.primaryButton}>
+      <TouchableOpacity
+        style={styles.primaryButton}
+        onPress={() => navigation.navigate('Main')}>
         <Text style={styles.buttonText}>Next</Text>
       </TouchableOpacity>
     </SafeAreaView>
