@@ -8,6 +8,11 @@ import {
   SafeAreaView,
   Image,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import CountryPicker from 'react-native-country-picker-modal';
@@ -26,85 +31,97 @@ const CreateProfileScreen = () => {
   const genders = ['Male', 'Female', 'Non'];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={{marginLeft: 20, marginTop: 10}}>
-        <Text style={{fontSize: 15}}>{'<'}</Text>
-      </TouchableOpacity>
-
-      <Text style={[styles.title, {marginTop: 10}]}>Create account</Text>
-
-      <View style={{alignItems: 'center', marginVertical: 10}}>
-        <Image
-          source={require('../../assets/icons/Mustafa.png')}
-          style={styles.avatar}
-          resizeMode="contain"
-        />
-        <Text style={styles.genderLabel}>Gender</Text>
-        <View style={styles.genderContainer}>
-          {genders.map(g => (
+    <KeyboardAvoidingView
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={{paddingBottom: 30}}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <SafeAreaView style={styles.container}>
             <TouchableOpacity
-              key={g}
-              onPress={() => setSelectedGender(g)}
-              style={[
-                styles.genderButton,
-                selectedGender === g && styles.genderSelected,
-              ]}>
-              <Text style={{color: selectedGender === g ? '#fff' : '#000'}}>
-                {g}
-              </Text>
+              onPress={() => navigation.goBack()}
+              style={{marginLeft: 20, marginTop: 10}}>
+              <Text style={{fontSize: 15}}>{'<'}</Text>
             </TouchableOpacity>
-          ))}
-        </View>
-      </View>
 
-      <Text style={styles.label}>Your Name</Text>
-      <TextInput
-        style={styles.inputField}
-        placeholder="Enter your name"
-        value={name}
-        onChangeText={setName}
-      />
+            <Text style={[styles.title, {marginTop: 10}]}>Create account</Text>
 
-      <Text style={styles.label}>Your Age</Text>
-      <TextInput
-        style={styles.inputField}
-        placeholder="Enter your age"
-        keyboardType="numeric"
-        value={age}
-        onChangeText={setAge}
-      />
+            <View style={{alignItems: 'center', marginVertical: 10}}>
+              <Image
+                source={require('../../assets/icons/Mustafa.png')}
+                style={styles.avatar}
+                resizeMode="contain"
+              />
+              <Text style={styles.genderLabel}>Gender</Text>
+              <View style={styles.genderContainer}>
+                {genders.map(g => (
+                  <TouchableOpacity
+                    key={g}
+                    onPress={() => setSelectedGender(g)}
+                    style={[
+                      styles.genderButton,
+                      selectedGender === g && styles.genderSelected,
+                    ]}>
+                    <Text
+                      style={{color: selectedGender === g ? '#fff' : '#000'}}>
+                      {g}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
-      <Text style={styles.label}>Phone number</Text>
-      <View style={styles.phoneRow}>
-        <CountryPicker
-          countryCode={countryCode}
-          withFilter
-          withFlag
-          withCallingCode
-          withEmoji
-          withCallingCodeButton
-          onSelect={country => {
-            setCountryCode(country.cca2);
-            setCallingCode(country.callingCode[0]);
-          }}
-        />
-        <TextInput
-          style={styles.inputFieldFlex}
-          placeholder="(XXX) XXX-XXXX"
-          keyboardType="phone-pad"
-          value={phone}
-          onChangeText={setPhone}
-        />
-      </View>
+            <Text style={styles.label}>Your Name</Text>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Enter your name"
+              value={name}
+              onChangeText={setName}
+            />
 
-      <TouchableOpacity
-        style={styles.primaryButton}
-        onPress={() => navigation.navigate('Main')}>
-        <Text style={styles.buttonText}>Next</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+            <Text style={styles.label}>Your Age</Text>
+            <TextInput
+              style={styles.inputField}
+              placeholder="Enter your age"
+              keyboardType="numeric"
+              value={age}
+              onChangeText={setAge}
+            />
+
+            <Text style={styles.label}>Phone number</Text>
+            <View style={styles.phoneRow}>
+              <CountryPicker
+                countryCode={countryCode}
+                withFilter
+                withFlag
+                withCallingCode
+                withEmoji
+                withCallingCodeButton
+                onSelect={country => {
+                  setCountryCode(country.cca2);
+                  setCallingCode(country.callingCode[0]);
+                }}
+              />
+              <TextInput
+                style={styles.inputFieldFlex}
+                placeholder="(XXX) XXX-XXXX"
+                keyboardType="phone-pad"
+                value={phone}
+                onChangeText={setPhone}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => navigation.navigate('Main')}>
+              <Text style={styles.buttonText}>Next</Text>
+            </TouchableOpacity>
+          </SafeAreaView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 
