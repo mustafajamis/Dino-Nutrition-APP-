@@ -1,16 +1,13 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Image, StyleSheet} from 'react-native';
 import HomeScreen from '../home/HomeScreen';
 import FoodScannerScreen from '../food/FoodScannerScreen';
+import CaloriesScreen from '../calories/CaloriesScreen';
+import ActivityScreen from '../activity/ActivityScreen';
+import ProfileScreen from '../profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
-
-const DummyScreen = ({label}) => (
-  <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-    <Text>{label}</Text>
-  </View>
-);
 
 const BottomTabs = () => {
   return (
@@ -44,8 +41,9 @@ const BottomTabs = () => {
       {/* Calories Tab */}
       <Tab.Screen
         name="Calories"
-        component={() => <DummyScreen label="Calories Page" />}
+        component={CaloriesScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/CaloriesIcon.png')}
@@ -65,6 +63,7 @@ const BottomTabs = () => {
         name="Scan"
         component={FoodScannerScreen}
         options={{
+          headerShown: false,
           tabBarLabel: '',
           tabBarIcon: () => (
             <View style={styles.cameraButton}>
@@ -81,8 +80,9 @@ const BottomTabs = () => {
       {/* Activity Tab */}
       <Tab.Screen
         name="Activity"
-        component={() => <DummyScreen label="Activity Page" />}
+        component={ActivityScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/ActivityIcon.png')}
@@ -100,8 +100,9 @@ const BottomTabs = () => {
       {/* Profile Tab */}
       <Tab.Screen
         name="Profile"
-        component={() => <DummyScreen label="Profile Page" />}
+        component={ProfileScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/ProfileIcon.png')}
@@ -118,6 +119,36 @@ const BottomTabs = () => {
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  tabBar: {
+    height: 70,
+    position: 'absolute',
+    backgroundColor: '#fff',
+    borderTopWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: -3},
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+  cameraButton: {
+    top: -20,
+    width: 65,
+    height: 65,
+    borderRadius: 32.5,
+    backgroundColor: '#91C788',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 6,
+  },
+});
+
+export default BottomTabs;
 
 const styles = StyleSheet.create({
   tabBar: {
