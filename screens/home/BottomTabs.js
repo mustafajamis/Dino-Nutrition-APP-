@@ -3,14 +3,11 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {View, Text, Image, StyleSheet} from 'react-native';
 import HomeScreen from '../home/HomeScreen';
 import FoodScannerScreen from '../food/FoodScannerScreen';
+import CaloriesScreen from '../calories/CaloriesScreen';
+import ActivityScreen from '../activity/ActivityScreen';
+import ProfileScreen from '../profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
-
-const DummyScreen = ({label}) => (
-  <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-    <Text>{label}</Text>
-  </View>
-);
 
 const BottomTabs = () => {
   return (
@@ -44,8 +41,9 @@ const BottomTabs = () => {
       {/* Calories Tab */}
       <Tab.Screen
         name="Calories"
-        component={() => <DummyScreen label="Calories Page" />}
+        component={CaloriesScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/CaloriesIcon.png')}
@@ -65,6 +63,7 @@ const BottomTabs = () => {
         name="Scan"
         component={FoodScannerScreen}
         options={{
+          headerShown: false,
           tabBarLabel: '',
           tabBarIcon: () => (
             <View style={styles.cameraButton}>
@@ -81,8 +80,9 @@ const BottomTabs = () => {
       {/* Activity Tab */}
       <Tab.Screen
         name="Activity"
-        component={() => <DummyScreen label="Activity Page" />}
+        component={ActivityScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/ActivityIcon.png')}
@@ -100,8 +100,9 @@ const BottomTabs = () => {
       {/* Profile Tab */}
       <Tab.Screen
         name="Profile"
-        component={() => <DummyScreen label="Profile Page" />}
+        component={ProfileScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/ProfileIcon.png')}
