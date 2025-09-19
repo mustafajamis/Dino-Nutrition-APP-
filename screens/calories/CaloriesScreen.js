@@ -18,6 +18,7 @@ const CaloriesScreen = () => {
   const [dailyGoal, setDailyGoal] = useState(2000);
   const [consumed, setConsumed] = useState(0);
   const [meals, setMeals] = useState([]);
+  const [darkModeEnabled] = useState(true); // Dark mode default
 
   useEffect(() => {
     if (user) {
