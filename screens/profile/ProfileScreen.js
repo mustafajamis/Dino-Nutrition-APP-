@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,20 +9,50 @@ import {
   Dimensions,
   Image,
   Switch,
+  Alert,
 } from 'react-native';
+import {useAuth} from '../../context/AuthContext';
 
 const {width} = Dimensions.get('window');
 
 const ProfileScreen = () => {
+  const {user, logout, getMonthlyStats} = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [privateProfile, setPrivateProfile] = useState(false);
+  const [monthlyStats, setMonthlyStats] = useState({});
+
+  useEffect(() => {
+    loadMonthlyStats();
+  }, [user]);
+
+  const loadMonthlyStats = useCallback(async () => {
+    if (!user) {return;}
+
+    try {
+      const stats = await getMonthlyStats();
+      setMonthlyStats(stats);
+    } catch (error) {
+      console.error('Error loading monthly stats:', error);
+    }
+  }, [user, getMonthlyStats]);
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {text: 'Logout', onPress: logout, style: 'destructive'},
+      ]
+    );
+  };
 
   const userStats = [
-    {label: 'Days Active', value: '24', subtitle: 'This month'},
-    {label: 'Total Calories', value: '18.2k', subtitle: 'Tracked'},
-    {label: 'Weight Goal', value: '75kg', subtitle: 'Target'},
-    {label: 'Streak', value: '7', subtitle: 'Days'},
+    {label: 'Days Active', value: monthlyStats.activeDays?.toString() || '0', subtitle: 'This month'},
+    {label: 'Total Calories', value: `${(monthlyStats.totalCalories || 0) / 1000}k`, subtitle: 'Tracked'},
+    {label: 'Avg Daily', value: monthlyStats.averageDaily?.toString() || '0', subtitle: 'Calories'},
+    {label: 'Exercise', value: `${Math.round((monthlyStats.totalExerciseMinutes || 0) / 60)}h`, subtitle: 'This month'},
   ];
 
   const menuItems = [
@@ -61,6 +91,13 @@ const ProfileScreen = () => {
       icon: '📊',
       action: () => console.log('Health Data'),
     },
+    {
+      id: 6,
+      title: 'Logout',
+      subtitle: 'Sign out of your account',
+      icon: '🚪',
+      action: handleLogout,
+    },
   ];
 
   const achievements = [
@@ -85,9 +122,11 @@ const ProfileScreen = () => {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.userName}>Mustafa Jamis</Text>
-          <Text style={styles.userEmail}>mustafa.jamis@example.com</Text>
-          <Text style={styles.joinDate}>Member since Dec 2024</Text>
+          <Text style={styles.userName}>{user?.name || user?.username || 'User'}</Text>
+          <Text style={styles.userEmail}>{user?.email || 'user@example.com'}</Text>
+          <Text style={styles.joinDate}>
+            Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Recently'}
+          </Text>
         </View>
 
         {/* Stats Grid */}
