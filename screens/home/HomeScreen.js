@@ -3,18 +3,47 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
   Alert,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
+import {useNavigation} from '@react-navigation/native';
 import {testDatabaseFunctionality} from '../../utils/testUtils';
 
 const HomeScreen = () => {
-  const {user, todayActivity} = useAuth();
+  const {user, todayActivity, setDailyGoal} = useAuth();
+  const navigation = useNavigation();
   const [isSilent, setIsSilent] = useState(false);
+
+  const handleSetGoal = () => {
+    Alert.prompt(
+      'Set Daily Calorie Goal',
+      'Enter your daily calorie target:',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Set Goal',
+          onPress: async (input) => {
+            const goal = parseInt(input, 10);
+            if (goal && goal > 0) {
+              const result = await setDailyGoal(goal);
+              if (result.success) {
+                Alert.alert('Success', `Daily goal set to ${goal} calories!`);
+              } else {
+                Alert.alert('Error', result.error);
+              }
+            } else {
+              Alert.alert('Error', 'Please enter a valid calorie goal');
+            }
+          },
+        },
+      ],
+      'plain-text',
+      user?.dailyCalorieGoal?.toString() || '2000'
+    );
+  };
 
   const runDatabaseTest = async () => {
     Alert.alert(
@@ -42,10 +71,6 @@ const HomeScreen = () => {
       <ScrollView>
         {/* Header Section */}
         <View style={styles.header}>
-          <Image
-            source={require('../../assets/icons/Mustafa.png')}
-            style={styles.avatar}
-          />
           <Text style={styles.greeting}>Hi, {user?.name || user?.username || 'User'}</Text>
 
           <TouchableOpacity onPress={() => setIsSilent(!isSilent)}>
@@ -76,15 +101,15 @@ const HomeScreen = () => {
         <View style={styles.quickActions}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
-            <TouchableOpacity style={styles.actionCard}>
+            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Calories')}>
               <Text style={styles.actionIcon}>🍽️</Text>
               <Text style={styles.actionText}>Log Meal</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard}>
+            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Scan')}>
               <Text style={styles.actionIcon}>📸</Text>
               <Text style={styles.actionText}>Scan Food</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard}>
+            <TouchableOpacity style={styles.actionCard} onPress={handleSetGoal}>
               <Text style={styles.actionIcon}>🎯</Text>
               <Text style={styles.actionText}>Set Goal</Text>
             </TouchableOpacity>
@@ -97,7 +122,12 @@ const HomeScreen = () => {
 
         {/* Goals Progress */}
         <View style={styles.goalsCard}>
-          <Text style={styles.cardTitle}>Daily Goals</Text>
+          <View style={styles.goalHeader}>
+            <Text style={styles.cardTitle}>Daily Goals</Text>
+            <TouchableOpacity onPress={handleSetGoal} style={styles.editGoalButton}>
+              <Text style={styles.editGoalText}>Edit</Text>
+            </TouchableOpacity>
+          </View>
           <View style={styles.goalItem}>
             <Text style={styles.goalLabel}>Calorie Goal</Text>
             <View style={styles.progressBar}>
@@ -111,6 +141,20 @@ const HomeScreen = () => {
             <Text style={styles.goalValue}>
               {todayActivity?.totalCaloriesConsumed || 0} / {user?.dailyCalorieGoal || 2000}
             </Text>
+          </View>
+          <View style={styles.goalStats}>
+            <View style={styles.goalStat}>
+              <Text style={styles.goalStatNumber}>
+                {Math.max(0, (user?.dailyCalorieGoal || 2000) - (todayActivity?.totalCaloriesConsumed || 0))}
+              </Text>
+              <Text style={styles.goalStatLabel}>Remaining</Text>
+            </View>
+            <View style={styles.goalStat}>
+              <Text style={styles.goalStatNumber}>
+                {Math.round(((todayActivity?.totalCaloriesConsumed || 0) / (user?.dailyCalorieGoal || 2000)) * 100)}%
+              </Text>
+              <Text style={styles.goalStatLabel}>Complete</Text>
+            </View>
           </View>
         </View>
       </ScrollView>
@@ -129,16 +173,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    justifyContent: 'space-between',
   },
   greeting: {
     fontSize: 16,
-    marginLeft: 10,
-    flex: 1,
     fontWeight: '600',
   },
   bell: {
@@ -215,6 +253,44 @@ const styles = StyleSheet.create({
   },
   goalItem: {
     marginBottom: 10,
+  },
+  goalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  editGoalButton: {
+    backgroundColor: '#91C788',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 15,
+  },
+  editGoalText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  goalStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  goalStat: {
+    alignItems: 'center',
+  },
+  goalStatNumber: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#91C788',
+  },
+  goalStatLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
   },
   goalLabel: {
     fontSize: 14,

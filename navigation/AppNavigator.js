@@ -5,6 +5,9 @@ import OnboardingWrapper from '../screens/OnBoarding/OnboardingWrapper';
 import LoginScreen from '../screens/login/LoginScreen';
 import SignupScreen from '../screens/login/SignupScreen';
 import BottomTabs from '../screens/home/BottomTabs';
+import EditProfileScreen from '../screens/profile/EditProfileScreen';
+import NutritionGoalsScreen from '../screens/profile/NutritionGoalsScreen';
+import FoodPreferencesScreen from '../screens/profile/FoodPreferencesScreen';
 
 const Stack = createStackNavigator();
 
@@ -16,6 +19,9 @@ const AppNavigator = () => {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="Main" component={BottomTabs} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="NutritionGoals" component={NutritionGoalsScreen} />
+      <Stack.Screen name="FoodPreferences" component={FoodPreferencesScreen} />
     </Stack.Navigator>
   );
 };
