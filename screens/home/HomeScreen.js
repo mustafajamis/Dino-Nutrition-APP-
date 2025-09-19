@@ -66,10 +66,8 @@ const HomeScreen = () => {
               <Text style={styles.statLabel}>Meals</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>
-                {todayActivity?.exercises?.reduce((total, ex) => total + ex.duration, 0) || 0}
-              </Text>
-              <Text style={styles.statLabel}>Minutes</Text>
+              <Text style={styles.statNumber}>{user?.dailyCalorieGoal || 2000}</Text>
+              <Text style={styles.statLabel}>Goal</Text>
             </View>
           </View>
         </View>
@@ -83,12 +81,12 @@ const HomeScreen = () => {
               <Text style={styles.actionText}>Log Meal</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>💪</Text>
-              <Text style={styles.actionText}>Add Exercise</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard}>
               <Text style={styles.actionIcon}>📸</Text>
               <Text style={styles.actionText}>Scan Food</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionCard}>
+              <Text style={styles.actionIcon}>🎯</Text>
+              <Text style={styles.actionText}>Set Goal</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionCard} onPress={runDatabaseTest}>
               <Text style={styles.actionIcon}>🧪</Text>

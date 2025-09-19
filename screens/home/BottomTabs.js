@@ -4,7 +4,6 @@ import {View, Image, StyleSheet} from 'react-native';
 import HomeScreen from '../home/HomeScreen';
 import FoodScannerScreen from '../food/FoodScannerScreen';
 import CaloriesScreen from '../calories/CaloriesScreen';
-import ActivityScreen from '../activity/ActivityScreen';
 import ProfileScreen from '../profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
@@ -65,22 +64,6 @@ const BottomTabs = () => {
                 resizeMode="contain"
               />
             </View>
-          ),
-        }}
-      />
-
-      {/* Activity Tab */}
-      <Tab.Screen
-        name="Activity"
-        component={ActivityScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({focused}) => (
-            <Image
-              source={require('../../assets/icons/ActivityIcon.png')}
-              style={[styles.tabIcon, {tintColor: focused ? '#91C788' : '#ccc'}]}
-              resizeMode="contain"
-            />
           ),
         }}
       />

@@ -115,9 +115,7 @@ class DatabaseService {
           userId: userId,
           date: today,
           meals: [],
-          exercises: [],
           totalCaloriesConsumed: 0,
-          totalCaloriesBurned: 0,
           waterIntake: 0,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -125,7 +123,7 @@ class DatabaseService {
         activities.push(todayActivity);
       }
 
-      // Add meal or exercise data
+      // Add meal data
       if (activityData.type === 'meal') {
         todayActivity.meals.push({
           id: this.generateId(),
@@ -136,16 +134,6 @@ class DatabaseService {
           timestamp: new Date().toISOString(),
         });
         todayActivity.totalCaloriesConsumed += activityData.calories;
-      } else if (activityData.type === 'exercise') {
-        todayActivity.exercises.push({
-          id: this.generateId(),
-          type: activityData.exerciseType,
-          duration: activityData.duration,
-          calories: activityData.calories,
-          time: activityData.time || new Date().toLocaleTimeString(),
-          timestamp: new Date().toISOString(),
-        });
-        todayActivity.totalCaloriesBurned += activityData.calories;
       }
 
       todayActivity.updatedAt = new Date().toISOString();
@@ -185,9 +173,7 @@ class DatabaseService {
         userId: userId,
         date: today,
         meals: [],
-        exercises: [],
         totalCaloriesConsumed: 0,
-        totalCaloriesBurned: 0,
         waterIntake: 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -216,9 +202,6 @@ class DatabaseService {
           date: dateStr,
           day: date.toLocaleDateString('en-US', { weekday: 'short' }),
           calories: dayActivity ? dayActivity.totalCaloriesConsumed : 0,
-          burned: dayActivity ? dayActivity.totalCaloriesBurned : 0,
-          exerciseMinutes: dayActivity ?
-            dayActivity.exercises.reduce((total, ex) => total + ex.duration, 0) : 0,
         });
       }
 
@@ -234,21 +217,15 @@ class DatabaseService {
       const activities = await this.getUserActivities(userId, 30);
       const monthlyData = {
         totalCalories: 0,
-        totalBurned: 0,
         averageDaily: 0,
         activeDays: 0,
-        totalExerciseMinutes: 0,
       };
 
       activities.forEach(activity => {
         monthlyData.totalCalories += activity.totalCaloriesConsumed;
-        monthlyData.totalBurned += activity.totalCaloriesBurned;
         if (activity.totalCaloriesConsumed > 0) {
           monthlyData.activeDays++;
         }
-        monthlyData.totalExerciseMinutes += activity.exercises.reduce(
-          (total, ex) => total + ex.duration, 0
-        );
       });
 
       monthlyData.averageDaily = monthlyData.activeDays > 0 ?
@@ -259,10 +236,8 @@ class DatabaseService {
       console.error('Error getting monthly stats:', error);
       return {
         totalCalories: 0,
-        totalBurned: 0,
         averageDaily: 0,
         activeDays: 0,
-        totalExerciseMinutes: 0,
       };
     }
   }

@@ -32,7 +32,7 @@ export const testDatabaseFunctionality = async () => {
     }
 
     // Test adding daily activity
-    const mealActivity = await DatabaseService.addDailyActivity(createdUser.id, {
+    await DatabaseService.addDailyActivity(createdUser.id, {
       type: 'meal',
       name: 'Breakfast',
       calories: 400,
@@ -40,23 +40,13 @@ export const testDatabaseFunctionality = async () => {
     });
     console.log('✅ Meal activity added');
 
-    const exerciseActivity = await DatabaseService.addDailyActivity(createdUser.id, {
-      type: 'exercise',
-      exerciseType: 'Running',
-      duration: 30,
-      calories: 300,
-    });
-    console.log('✅ Exercise activity added');
-
     // Test getting today's activity
     const todayActivity = await DatabaseService.getTodayActivity(createdUser.id);
-    if (todayActivity && todayActivity.meals.length > 0 && todayActivity.exercises.length > 0) {
+    if (todayActivity && todayActivity.meals.length > 0) {
       console.log('✅ Today activity retrieved successfully');
       console.log('📊 Stats:', {
         meals: todayActivity.meals.length,
-        exercises: todayActivity.exercises.length,
         totalCaloriesConsumed: todayActivity.totalCaloriesConsumed,
-        totalCaloriesBurned: todayActivity.totalCaloriesBurned,
       });
     } else {
       console.log('❌ Failed to retrieve today activity');

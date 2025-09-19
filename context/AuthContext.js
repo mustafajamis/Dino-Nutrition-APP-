@@ -118,33 +118,6 @@ export const AuthProvider = ({children}) => {
     }
   };
 
-  const addExercise = async (exerciseData) => {
-    if (!user) {return {success: false, error: 'No user logged in'};}
-
-    try {
-      const updatedActivity = await DatabaseService.addDailyActivity(user.id, {
-        type: 'exercise',
-        ...exerciseData,
-      });
-      setTodayActivity(updatedActivity);
-      return {success: true, activity: updatedActivity};
-    } catch (error) {
-      console.error('Add exercise error:', error);
-      return {success: false, error: error.message};
-    }
-  };
-
-  const getWeeklyStats = async () => {
-    if (!user) {return [];}
-
-    try {
-      return await DatabaseService.getWeeklyStats(user.id);
-    } catch (error) {
-      console.error('Get weekly stats error:', error);
-      return [];
-    }
-  };
-
   const getMonthlyStats = async () => {
     if (!user) {return {};}
 
@@ -169,8 +142,6 @@ export const AuthProvider = ({children}) => {
     logout,
     updateProfile,
     addMeal,
-    addExercise,
-    getWeeklyStats,
     getMonthlyStats,
     refreshTodayActivity,
   };
