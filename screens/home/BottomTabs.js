@@ -1,16 +1,13 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Image, StyleSheet} from 'react-native';
 import HomeScreen from '../home/HomeScreen';
 import FoodScannerScreen from '../food/FoodScannerScreen';
+import CaloriesScreen from '../calories/CaloriesScreen';
+import ActivityScreen from '../activity/ActivityScreen';
+import ProfileScreen from '../profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
-
-const DummyScreen = ({label}) => (
-  <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-    <Text>{label}</Text>
-  </View>
-);
 
 const BottomTabs = () => {
   return (
@@ -30,11 +27,7 @@ const BottomTabs = () => {
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/HomeIcone.png')}
-              style={{
-                width: 24,
-                height: 24,
-                tintColor: focused ? '#91C788' : '#ccc',
-              }}
+              style={[styles.tabIcon, {tintColor: focused ? '#91C788' : '#ccc'}]}
               resizeMode="contain"
             />
           ),
@@ -44,16 +37,13 @@ const BottomTabs = () => {
       {/* Calories Tab */}
       <Tab.Screen
         name="Calories"
-        component={() => <DummyScreen label="Calories Page" />}
+        component={CaloriesScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/CaloriesIcon.png')}
-              style={{
-                width: 24,
-                height: 24,
-                tintColor: focused ? '#91C788' : '#ccc',
-              }}
+              style={[styles.tabIcon, {tintColor: focused ? '#91C788' : '#ccc'}]}
               resizeMode="contain"
             />
           ),
@@ -65,12 +55,13 @@ const BottomTabs = () => {
         name="Scan"
         component={FoodScannerScreen}
         options={{
+          headerShown: false,
           tabBarLabel: '',
           tabBarIcon: () => (
             <View style={styles.cameraButton}>
               <Image
                 source={require('../../assets/icons/CameraIcon.png')}
-                style={{width: 30, height: 30, tintColor: '#fff'}}
+                style={styles.cameraIcon}
                 resizeMode="contain"
               />
             </View>
@@ -81,16 +72,13 @@ const BottomTabs = () => {
       {/* Activity Tab */}
       <Tab.Screen
         name="Activity"
-        component={() => <DummyScreen label="Activity Page" />}
+        component={ActivityScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/ActivityIcon.png')}
-              style={{
-                width: 24,
-                height: 24,
-                tintColor: focused ? '#91C788' : '#ccc',
-              }}
+              style={[styles.tabIcon, {tintColor: focused ? '#91C788' : '#ccc'}]}
               resizeMode="contain"
             />
           ),
@@ -100,16 +88,13 @@ const BottomTabs = () => {
       {/* Profile Tab */}
       <Tab.Screen
         name="Profile"
-        component={() => <DummyScreen label="Profile Page" />}
+        component={ProfileScreen}
         options={{
+          headerShown: false,
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/ProfileIcon.png')}
-              style={{
-                width: 24,
-                height: 24,
-                tintColor: focused ? '#91C788' : '#ccc',
-              }}
+              style={[styles.tabIcon, {tintColor: focused ? '#91C788' : '#ccc'}]}
               resizeMode="contain"
             />
           ),
@@ -131,6 +116,10 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 10,
   },
+  tabIcon: {
+    width: 24,
+    height: 24,
+  },
   cameraButton: {
     top: -20,
     width: 65,
@@ -144,6 +133,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 6,
+  },
+  cameraIcon: {
+    width: 30,
+    height: 30,
+    tintColor: '#fff',
   },
 });
 
