@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,41 +7,35 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  Alert,
 } from 'react-native';
+import {useAuth} from '../../context/AuthContext';
 
 const {width} = Dimensions.get('window');
 
 const CaloriesScreen = () => {
-  const [dailyGoal] = useState(2000);
-  const [consumed] = useState(1420);
-  const [burned] = useState(300);
+  const {user, todayActivity, addMeal, refreshTodayActivity} = useAuth();
+  const [dailyGoal, setDailyGoal] = useState(2000);
+  const [consumed, setConsumed] = useState(0);
+  const [burned, setBurned] = useState(0);
+  const [meals, setMeals] = useState([]);
+
+  useEffect(() => {
+    if (user) {
+      setDailyGoal(user.dailyCalorieGoal || 2000);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (todayActivity) {
+      setConsumed(todayActivity.totalCaloriesConsumed || 0);
+      setBurned(todayActivity.totalCaloriesBurned || 0);
+      setMeals(todayActivity.meals || []);
+    }
+  }, [todayActivity]);
 
   const remaining = dailyGoal - consumed + burned;
   const progressPercentage = Math.min((consumed / dailyGoal) * 100, 100);
-
-  const meals = [
-    {
-      id: 1,
-      name: 'Breakfast',
-      calories: 450,
-      foods: ['Oatmeal with berries', 'Greek yogurt'],
-      time: '8:30 AM',
-    },
-    {
-      id: 2,
-      name: 'Lunch',
-      calories: 620,
-      foods: ['Grilled chicken salad', 'Apple'],
-      time: '12:45 PM',
-    },
-    {
-      id: 3,
-      name: 'Dinner',
-      calories: 350,
-      foods: ['Salmon', 'Steamed vegetables'],
-      time: '7:15 PM',
-    },
-  ];
 
   const quickAddFoods = [
     {name: 'Banana', calories: 95, icon: '🍌'},
@@ -49,6 +43,76 @@ const CaloriesScreen = () => {
     {name: 'Almonds', calories: 160, icon: '🥜'},
     {name: 'Water', calories: 0, icon: '💧'},
   ];
+
+  const handleQuickAdd = async (food) => {
+    if (!user) {
+      Alert.alert('Error', 'Please log in to add food');
+      return;
+    }
+
+    const result = await addMeal({
+      name: `Quick Add - ${food.name}`,
+      calories: food.calories,
+      foods: [food.name],
+    });
+
+    if (result.success) {
+      Alert.alert('Success', `${food.name} added to your diary!`);
+    } else {
+      Alert.alert('Error', result.error);
+    }
+  };
+
+  const handleAddMeal = () => {
+    Alert.alert(
+      'Add Meal',
+      'Choose meal type:',
+      [
+        {text: 'Breakfast', onPress: () => addMealDialog('Breakfast')},
+        {text: 'Lunch', onPress: () => addMealDialog('Lunch')},
+        {text: 'Dinner', onPress: () => addMealDialog('Dinner')},
+        {text: 'Snack', onPress: () => addMealDialog('Snack')},
+        {text: 'Cancel', style: 'cancel'},
+      ]
+    );
+  };
+
+  const addMealDialog = (mealType) => {
+    Alert.prompt(
+      `Add ${mealType}`,
+      'Enter food name and calories (e.g., "Chicken Salad, 350"):',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Add',
+          onPress: async (input) => {
+            if (input) {
+              const parts = input.split(',');
+              const foodName = parts[0]?.trim();
+              const calories = parseInt(parts[1]?.trim()) || 0;
+              
+              if (foodName && calories > 0) {
+                const result = await addMeal({
+                  name: mealType,
+                  calories: calories,
+                  foods: [foodName],
+                });
+                
+                if (result.success) {
+                  Alert.alert('Success', 'Meal added successfully!');
+                } else {
+                  Alert.alert('Error', result.error);
+                }
+              } else {
+                Alert.alert('Error', 'Please enter valid food name and calories');
+              }
+            }
+          },
+        },
+      ],
+      'plain-text'
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -94,7 +158,10 @@ const CaloriesScreen = () => {
           <Text style={styles.sectionTitle}>Quick Add</Text>
           <View style={styles.quickAddGrid}>
             {quickAddFoods.map((food, index) => (
-              <TouchableOpacity key={index} style={styles.quickAddItem}>
+              <TouchableOpacity 
+                key={index} 
+                style={styles.quickAddItem}
+                onPress={() => handleQuickAdd(food)}>
                 <Text style={styles.quickAddIcon}>{food.icon}</Text>
                 <Text style={styles.quickAddName}>{food.name}</Text>
                 <Text style={styles.quickAddCalories}>{food.calories} cal</Text>
@@ -107,29 +174,36 @@ const CaloriesScreen = () => {
         <View style={styles.mealsSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Today's Meals</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleAddMeal}>
               <Text style={styles.addButton}>+ Add Meal</Text>
             </TouchableOpacity>
           </View>
 
-          {meals.map(meal => (
-            <View key={meal.id} style={styles.mealCard}>
-              <View style={styles.mealHeader}>
-                <Text style={styles.mealName}>{meal.name}</Text>
-                <View style={styles.mealInfo}>
-                  <Text style={styles.mealTime}>{meal.time}</Text>
-                  <Text style={styles.mealCalories}>{meal.calories} cal</Text>
+          {meals.length === 0 ? (
+            <View style={styles.emptyMeals}>
+              <Text style={styles.emptyText}>No meals logged yet today</Text>
+              <Text style={styles.emptySubtext}>Tap "Add Meal" to get started!</Text>
+            </View>
+          ) : (
+            meals.map(meal => (
+              <View key={meal.id} style={styles.mealCard}>
+                <View style={styles.mealHeader}>
+                  <Text style={styles.mealName}>{meal.name}</Text>
+                  <View style={styles.mealInfo}>
+                    <Text style={styles.mealTime}>{meal.time}</Text>
+                    <Text style={styles.mealCalories}>{meal.calories} cal</Text>
+                  </View>
+                </View>
+                <View style={styles.mealFoods}>
+                  {meal.foods.map((food, index) => (
+                    <Text key={index} style={styles.foodItem}>
+                      • {food}
+                    </Text>
+                  ))}
                 </View>
               </View>
-              <View style={styles.mealFoods}>
-                {meal.foods.map((food, index) => (
-                  <Text key={index} style={styles.foodItem}>
-                    • {food}
-                  </Text>
-                ))}
-              </View>
-            </View>
-          ))}
+            ))
+          )}
         </View>
 
         {/* Nutrition Summary */}
@@ -302,6 +376,20 @@ const styles = StyleSheet.create({
     color: '#91C788',
     fontSize: width * 0.04,
     fontWeight: '600',
+  },
+  emptyMeals: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  emptyText: {
+    fontSize: width * 0.04,
+    color: '#666',
+    fontWeight: '500',
+  },
+  emptySubtext: {
+    fontSize: width * 0.035,
+    color: '#999',
+    marginTop: 5,
   },
   mealCard: {
     backgroundColor: '#F8F8F8',

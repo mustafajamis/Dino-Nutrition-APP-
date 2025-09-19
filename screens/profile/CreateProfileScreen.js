@@ -13,22 +13,55 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import CountryPicker from 'react-native-country-picker-modal';
+import {useAuth} from '../../context/AuthContext';
 
 const {width, height} = Dimensions.get('window');
 
 const CreateProfileScreen = () => {
   const navigation = useNavigation();
+  const {updateProfile} = useAuth();
   const [selectedGender, setSelectedGender] = useState('');
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('US');
   const [callingCode, setCallingCode] = useState('1');
+  const [loading, setLoading] = useState(false);
 
   const genders = ['Male', 'Female', 'Non'];
+
+  const handleNext = async () => {
+    if (!name.trim() || !selectedGender || !age.trim()) {
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await updateProfile({
+        name: name.trim(),
+        gender: selectedGender,
+        age: parseInt(age),
+        phone: phone.trim(),
+      });
+
+      if (result.success) {
+        Alert.alert('Success', 'Profile updated successfully!', [
+          {text: 'OK', onPress: () => navigation.navigate('Main')},
+        ]);
+      } else {
+        Alert.alert('Error', result.error);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -114,9 +147,12 @@ const CreateProfileScreen = () => {
             </View>
 
             <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={() => navigation.navigate('Main')}>
-              <Text style={styles.buttonText}>Next</Text>
+              style={[styles.primaryButton, loading && {opacity: 0.6}]}
+              onPress={handleNext}
+              disabled={loading}>
+              <Text style={styles.buttonText}>
+                {loading ? 'Saving...' : 'Next'}
+              </Text>
             </TouchableOpacity>
           </SafeAreaView>
         </ScrollView>
