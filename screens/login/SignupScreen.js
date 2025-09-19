@@ -77,8 +77,8 @@ const SignupScreen = ({navigation}) => {
       };
       const result = await signup(signupData);
       if (result.success) {
-        Alert.alert('Success', 'Account created successfully!', [
-          {text: 'OK', onPress: () => navigation.navigate('Main')},
+        Alert.alert('Welcome to Dino! 🦕', 'Your account has been created successfully! Let\'s start your healthy journey.', [
+          {text: 'Let\'s Go!', onPress: () => navigation.navigate('Main')},
         ]);
       } else {
         Alert.alert('Error', result.error);
@@ -133,6 +133,8 @@ const SignupScreen = ({navigation}) => {
                   autoCorrect={false}
                   value={formData.name}
                   onChangeText={(text) => handleInputChange('name', text)}
+                  accessibilityLabel="Name input field"
+                  accessibilityHint="Enter your full name"
                 />
                 <Text style={styles.inputIcon}>👤</Text>
               </View>
@@ -148,6 +150,8 @@ const SignupScreen = ({navigation}) => {
                   autoCorrect={false}
                   value={formData.email}
                   onChangeText={(text) => handleInputChange('email', text)}
+                  accessibilityLabel="Email input field"
+                  accessibilityHint="Enter your email address"
                 />
                 <Text style={styles.inputIcon}>✉️</Text>
               </View>
@@ -163,6 +167,8 @@ const SignupScreen = ({navigation}) => {
                   autoCorrect={false}
                   value={formData.password}
                   onChangeText={(text) => handleInputChange('password', text)}
+                  accessibilityLabel="Password input field"
+                  accessibilityHint="Create a password with at least 6 characters"
                 />
                 <TouchableOpacity onPress={() => setSecureText(!secureText)}>
                   <Text style={styles.inputIcon}>👁️</Text>

@@ -119,6 +119,8 @@ const LoginScreen = ({navigation}) => {
                   autoCapitalize="none"
                   value={formData.username}
                   onChangeText={(text) => handleInputChange('username', text)}
+                  accessibilityLabel="Email input field"
+                  accessibilityHint="Enter your email address"
                 />
                 <Text style={styles.inputIcon}>✉️</Text>
               </View>
@@ -132,6 +134,8 @@ const LoginScreen = ({navigation}) => {
                   secureTextEntry={secureText}
                   value={formData.password}
                   onChangeText={(text) => handleInputChange('password', text)}
+                  accessibilityLabel="Password input field"
+                  accessibilityHint="Enter your account password"
                 />
                 <TouchableOpacity onPress={() => setSecureText(!secureText)}>
                   <Text style={styles.inputIcon}>👁️</Text>
