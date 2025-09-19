@@ -24,7 +24,7 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     loadMonthlyStats();
-  }, [user]);
+  }, [user, loadMonthlyStats]);
 
   const loadMonthlyStats = useCallback(async () => {
     if (!user) {return;}
@@ -50,9 +50,9 @@ const ProfileScreen = () => {
 
   const userStats = [
     {label: 'Days Active', value: monthlyStats.activeDays?.toString() || '0', subtitle: 'This month'},
-    {label: 'Total Calories', value: `${(monthlyStats.totalCalories || 0) / 1000}k`, subtitle: 'Tracked'},
+    {label: 'Total Calories', value: `${Math.round((monthlyStats.totalCalories || 0) / 1000)}k`, subtitle: 'Tracked'},
     {label: 'Avg Daily', value: monthlyStats.averageDaily?.toString() || '0', subtitle: 'Calories'},
-    {label: 'Exercise', value: `${Math.round((monthlyStats.totalExerciseMinutes || 0) / 60)}h`, subtitle: 'This month'},
+    {label: 'Goal', value: user?.dailyCalorieGoal?.toString() || '2000', subtitle: 'Daily target'},
   ];
 
   const menuItems = [
@@ -72,27 +72,20 @@ const ProfileScreen = () => {
     },
     {
       id: 3,
-      title: 'Activity Goals',
-      subtitle: 'Configure your fitness objectives',
-      icon: '🏃‍♂️',
-      action: () => console.log('Activity Goals'),
-    },
-    {
-      id: 4,
       title: 'Food Preferences',
       subtitle: 'Dietary restrictions and preferences',
       icon: '🍽️',
       action: () => console.log('Food Preferences'),
     },
     {
-      id: 5,
-      title: 'Health Data',
-      subtitle: 'Sync with health apps',
-      icon: '📊',
-      action: () => console.log('Health Data'),
+      id: 4,
+      title: 'Notifications',
+      subtitle: 'Manage your app notifications',
+      icon: '🔔',
+      action: () => console.log('Notifications'),
     },
     {
-      id: 6,
+      id: 5,
       title: 'Logout',
       subtitle: 'Sign out of your account',
       icon: '🚪',
