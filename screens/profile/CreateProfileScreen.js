@@ -31,23 +31,23 @@ const CreateProfileScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
+      style={styles.flexContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
-          contentContainerStyle={{paddingBottom: 30}}
+          contentContainerStyle={styles.paddingBottomContainer}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
           <SafeAreaView style={styles.container}>
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              style={{marginLeft: 20, marginTop: 10}}>
-              <Text style={{fontSize: 15}}>{'<'}</Text>
+              style={styles.backButton}>
+              <Text style={styles.backButtonText}>{'<'}</Text>
             </TouchableOpacity>
 
-            <Text style={[styles.title, {marginTop: 10}]}>Create account</Text>
+            <Text style={[styles.title, styles.titleWithMargin]}>Create account</Text>
 
-            <View style={{alignItems: 'center', marginVertical: 10}}>
+            <View style={styles.centeredContainer}>
               <Image
                 source={require('../../assets/icons/Mustafa.png')}
                 style={styles.avatar}
@@ -64,7 +64,11 @@ const CreateProfileScreen = () => {
                       selectedGender === g && styles.genderSelected,
                     ]}>
                     <Text
-                      style={{color: selectedGender === g ? '#fff' : '#000'}}>
+                      style={[
+                        selectedGender === g
+                          ? styles.genderTextSelected
+                          : styles.genderTextDefault,
+                      ]}>
                       {g}
                     </Text>
                   </TouchableOpacity>

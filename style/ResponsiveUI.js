@@ -128,4 +128,27 @@ export const responsiveStyles = StyleSheet.create({
   flexGrowContainer: {
     flexGrow: 1,
   },
+  paddingBottomContainer: {
+    paddingBottom: 30,
+  },
+  backButton: {
+    marginLeft: 20,
+    marginTop: 10,
+  },
+  backButtonText: {
+    fontSize: 15,
+  },
+  titleWithMargin: {
+    marginTop: 10,
+  },
+  centeredContainer: {
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  genderTextSelected: {
+    color: '#fff',
+  },
+  genderTextDefault: {
+    color: '#000',
+  },
 });
