@@ -1,10 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   SafeAreaView,
   Dimensions,
   KeyboardAvoidingView,
@@ -13,6 +12,7 @@ import {
   Platform,
   ScrollView,
   Alert,
+  Animated,
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import {responsiveStyles as styles} from '../../style/ResponsiveUI';
@@ -23,12 +23,32 @@ const {width} = Dimensions.get('window');
 const SignupScreen = ({navigation}) => {
   const [secureText, setSecureText] = useState(true);
   const [formData, setFormData] = useState({
-    username: '',
+    name: '',
     email: '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
   const {signup} = useAuth();
+
+  // Animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+
+  useEffect(() => {
+    // Start the animation when component mounts
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, slideAnim]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -38,7 +58,7 @@ const SignupScreen = ({navigation}) => {
   };
 
   const handleSignup = async () => {
-    if (!formData.username.trim() || !formData.email.trim() || !formData.password.trim()) {
+    if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -50,10 +70,15 @@ const SignupScreen = ({navigation}) => {
 
     setLoading(true);
     try {
-      const result = await signup(formData);
+      // Include name as username for now to maintain compatibility
+      const signupData = {
+        ...formData,
+        username: formData.name, // Use name as username
+      };
+      const result = await signup(signupData);
       if (result.success) {
-        Alert.alert('Success', 'Account created successfully!', [
-          {text: 'OK', onPress: () => navigation.navigate('CreateProfile')},
+        Alert.alert('Welcome to Dino! 🦕', 'Your account has been created successfully! Let\'s start your healthy journey.', [
+          {text: 'Let\'s Go!', onPress: () => navigation.navigate('Main')},
         ]);
       } else {
         Alert.alert('Error', result.error);
@@ -67,12 +92,12 @@ const SignupScreen = ({navigation}) => {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
+      style={localStyles.keyboardView}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{flexGrow: 1}}>
+          contentContainerStyle={localStyles.scrollContainer}>
           <SafeAreaView style={styles.container}>
             {/* Top Green Wave */}
             <Svg
@@ -87,20 +112,29 @@ const SignupScreen = ({navigation}) => {
             </Svg>
 
             {/* Form */}
-            <View style={styles.formContainer}>
-              <Text style={styles.title}>Start your healthy with</Text>
+            <Animated.View
+              style={[
+                styles.formContainer,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }],
+                },
+              ]}>
+              <Text style={styles.title}>Start your healthy journey with</Text>
               <Text style={styles.cotitle}>Dino Today</Text>
 
-              {/* Username */}
-              <Text style={styles.label}>Username</Text>
+              {/* Name */}
+              <Text style={styles.label}>Name</Text>
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your username"
-                  autoCapitalize="none"
+                  placeholder="Enter your name"
+                  autoCapitalize="words"
                   autoCorrect={false}
-                  value={formData.username}
-                  onChangeText={(text) => handleInputChange('username', text)}
+                  value={formData.name}
+                  onChangeText={(text) => handleInputChange('name', text)}
+                  accessibilityLabel="Name input field"
+                  accessibilityHint="Enter your full name"
                 />
                 <Text style={styles.inputIcon}>👤</Text>
               </View>
@@ -110,12 +144,14 @@ const SignupScreen = ({navigation}) => {
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Dino@yahoo.com"
+                  placeholder="your.email@example.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
                   value={formData.email}
                   onChangeText={(text) => handleInputChange('email', text)}
+                  accessibilityLabel="Email input field"
+                  accessibilityHint="Enter your email address"
                 />
                 <Text style={styles.inputIcon}>✉️</Text>
               </View>
@@ -125,12 +161,14 @@ const SignupScreen = ({navigation}) => {
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your password"
+                  placeholder="Create a secure password"
                   secureTextEntry={secureText}
                   autoCapitalize="none"
                   autoCorrect={false}
                   value={formData.password}
                   onChangeText={(text) => handleInputChange('password', text)}
+                  accessibilityLabel="Password input field"
+                  accessibilityHint="Create a password with at least 6 characters"
                 />
                 <TouchableOpacity onPress={() => setSecureText(!secureText)}>
                   <Text style={styles.inputIcon}>👁️</Text>
@@ -139,11 +177,15 @@ const SignupScreen = ({navigation}) => {
 
               {/* Signup Button */}
               <TouchableOpacity
-                style={[styles.signupButton, loading && {opacity: 0.6}]}
+                style={[
+                  styles.signupButton,
+                  loading && localStyles.loadingButton,
+                ]}
                 onPress={handleSignup}
-                disabled={loading}>
+                disabled={loading}
+                activeOpacity={0.8}>
                 <Text style={styles.loginText}>
-                  {loading ? 'Creating Account...' : 'Signup'}
+                  {loading ? 'Creating Account...' : 'Create Account'}
                 </Text>
               </TouchableOpacity>
 
@@ -154,12 +196,25 @@ const SignupScreen = ({navigation}) => {
                   <Text style={styles.link}> Login</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </Animated.View>
           </SafeAreaView>
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
+};
+
+const localStyles = {
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  loadingButton: {
+    opacity: 0.8,
+    transform: [{scale: 0.98}],
+  },
 };
 
 export default SignupScreen;

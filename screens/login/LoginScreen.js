@@ -1,10 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   SafeAreaView,
   Dimensions,
   KeyboardAvoidingView,
@@ -13,6 +12,7 @@ import {
   Platform,
   ScrollView,
   Alert,
+  Animated,
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import {responsiveStyles as styles} from '../../style/ResponsiveUI';
@@ -28,6 +28,26 @@ const LoginScreen = ({navigation}) => {
   });
   const [loading, setLoading] = useState(false);
   const {login} = useAuth();
+
+  // Animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+
+  useEffect(() => {
+    // Start the animation when component mounts
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, slideAnim]);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -59,12 +79,12 @@ const LoginScreen = ({navigation}) => {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
+      style={localStyles.keyboardView}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{flexGrow: 1}}>
+          contentContainerStyle={localStyles.scrollContainer}>
           <SafeAreaView style={styles.container}>
             {/* Top Green Wave using SVG */}
             <Svg
@@ -79,7 +99,14 @@ const LoginScreen = ({navigation}) => {
             </Svg>
 
             {/* Login Form */}
-            <View style={styles.formContainer}>
+            <Animated.View
+              style={[
+                styles.formContainer,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }],
+                },
+              ]}>
               <Text style={styles.title}>Login to Dino</Text>
 
               {/* Email */}
@@ -87,11 +114,13 @@ const LoginScreen = ({navigation}) => {
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Dino@yahoo.com"
+                  placeholder="your.email@example.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
                   value={formData.username}
                   onChangeText={(text) => handleInputChange('username', text)}
+                  accessibilityLabel="Email input field"
+                  accessibilityHint="Enter your email address"
                 />
                 <Text style={styles.inputIcon}>✉️</Text>
               </View>
@@ -105,6 +134,8 @@ const LoginScreen = ({navigation}) => {
                   secureTextEntry={secureText}
                   value={formData.password}
                   onChangeText={(text) => handleInputChange('password', text)}
+                  accessibilityLabel="Password input field"
+                  accessibilityHint="Enter your account password"
                 />
                 <TouchableOpacity onPress={() => setSecureText(!secureText)}>
                   <Text style={styles.inputIcon}>👁️</Text>
@@ -113,11 +144,15 @@ const LoginScreen = ({navigation}) => {
 
               {/* Login Button */}
               <TouchableOpacity
-                style={[styles.loginButton, loading && {opacity: 0.6}]}
+                style={[
+                  styles.loginButton,
+                  loading && localStyles.loadingButton,
+                ]}
                 onPress={handleLogin}
-                disabled={loading}>
+                disabled={loading}
+                activeOpacity={0.8}>
                 <Text style={styles.loginText}>
-                  {loading ? 'Logging in...' : 'Confirm and continue'}
+                  {loading ? 'Logging in...' : 'Login'}
                 </Text>
               </TouchableOpacity>
 
@@ -128,12 +163,25 @@ const LoginScreen = ({navigation}) => {
                   <Text style={[styles.link]}> Sign up</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </Animated.View>
           </SafeAreaView>
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
+};
+
+const localStyles = {
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  loadingButton: {
+    opacity: 0.8,
+    transform: [{scale: 0.98}],
+  },
 };
 
 export default LoginScreen;
