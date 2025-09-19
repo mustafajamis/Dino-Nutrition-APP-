@@ -7,12 +7,12 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  Image,
   Switch,
   Alert,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
 import {useNavigation} from '@react-navigation/native';
+import {LineChart} from 'react-native-chart-kit';
 
 const {width} = Dimensions.get('window');
 
@@ -20,7 +20,7 @@ const ProfileScreen = () => {
   const {user, logout, getMonthlyStats} = useAuth();
   const navigation = useNavigation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+  const [darkModeEnabled, setDarkModeEnabled] = useState(true);
   const [privateProfile, setPrivateProfile] = useState(false);
   const [monthlyStats, setMonthlyStats] = useState({});
 
@@ -97,213 +97,194 @@ const ProfileScreen = () => {
     },
   ];
 
-  const achievements = [
-    {title: 'First Week', description: 'Completed your first week', icon: '🏆', unlocked: true},
-    {title: 'Calorie Master', description: 'Logged 1000 meals', icon: '🍽️', unlocked: true},
-    {title: 'Fitness Fanatic', description: '30 days of activity', icon: '💪', unlocked: false},
-    {title: 'Goal Getter', description: 'Reached weight goal', icon: '⭐', unlocked: false},
-  ];
+  // Sample data for reports chart
+  const getReportsData = () => {
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const data = [
+      monthlyStats.activeDays ? monthlyStats.activeDays * 300 : 1800,
+      monthlyStats.averageDaily || 2100,
+      2300,
+      1900,
+      2500,
+      2200,
+      2000,
+    ];
+    return { labels, datasets: [{ data }] };
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, darkModeEnabled && styles.darkContainer]}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header with Profile Info */}
-        <View style={styles.profileHeader}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={require('../../assets/icons/Mustafa.png')}
-              style={styles.avatar}
-            />
-            <TouchableOpacity style={styles.editAvatarButton}>
-              <Text style={styles.editAvatarText}>📷</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.userName}>{user?.name || user?.username || 'User'}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'user@example.com'}</Text>
-          <Text style={styles.joinDate}>
+        {/* Header with Profile Info - No Image */}
+        <View style={[styles.profileHeader, darkModeEnabled && styles.darkProfileHeader]}>
+          <Text style={[styles.userName, darkModeEnabled && styles.darkText]}>{user?.name || user?.username || 'User'}</Text>
+          <Text style={[styles.userEmail, darkModeEnabled && styles.darkSubText]}>{user?.email || 'user@example.com'}</Text>
+          <Text style={[styles.joinDate, darkModeEnabled && styles.darkSubText]}>
             Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Recently'}
           </Text>
         </View>
 
         {/* Stats Grid */}
-        <View style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>Your Progress</Text>
+        <View style={[styles.statsSection, darkModeEnabled && styles.darkSection]}>
+          <Text style={[styles.sectionTitle, darkModeEnabled && styles.darkText]}>Your Progress</Text>
           <View style={styles.statsGrid}>
             {userStats.map((stat, index) => (
-              <View key={index} style={styles.statCard}>
-                <Text style={styles.statValue}>{stat.value}</Text>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-                <Text style={styles.statSubtitle}>{stat.subtitle}</Text>
+              <View key={index} style={[styles.statCard, darkModeEnabled && styles.darkStatCard]}>
+                <Text style={[styles.statValue, darkModeEnabled && styles.darkAccent]}>{stat.value}</Text>
+                <Text style={[styles.statLabel, darkModeEnabled && styles.darkText]}>{stat.label}</Text>
+                <Text style={[styles.statSubtitle, darkModeEnabled && styles.darkSubText]}>{stat.subtitle}</Text>
               </View>
             ))}
           </View>
         </View>
 
+        {/* View Reports Chart */}
+        <View style={[styles.reportsSection, darkModeEnabled && styles.darkSection]}>
+          <Text style={[styles.sectionTitle, darkModeEnabled && styles.darkText]}>View Reports Chart</Text>
+          <View style={[styles.chartContainer, darkModeEnabled && styles.darkChartContainer]}>
+            <LineChart
+              data={getReportsData()}
+              width={width - 40}
+              height={220}
+              yAxisLabel=""
+              yAxisSuffix=" cal"
+              yAxisInterval={1}
+              chartConfig={{
+                backgroundColor: darkModeEnabled ? '#2d2d2d' : '#ffffff',
+                backgroundGradientFrom: darkModeEnabled ? '#2d2d2d' : '#ffffff',
+                backgroundGradientTo: darkModeEnabled ? '#1a1a1a' : '#f8f8f8',
+                decimalPlaces: 0,
+                color: (opacity = 1) => darkModeEnabled ? `rgba(145, 199, 136, ${opacity})` : `rgba(145, 199, 136, ${opacity})`,
+                labelColor: (opacity = 1) => darkModeEnabled ? `rgba(255, 255, 255, ${opacity})` : `rgba(0, 0, 0, ${opacity})`,
+                style: {
+                  borderRadius: 16,
+                },
+                propsForDots: {
+                  r: '6',
+                  strokeWidth: '2',
+                  stroke: '#91C788',
+                },
+              }}
+              bezier
+              style={styles.chartStyle}
+            />
+            <Text style={[styles.chartDescription, darkModeEnabled && styles.darkSubText]}>
+              Weekly calorie intake trends
+            </Text>
+          </View>
+        </View>
+
         {/* Quick Actions */}
-        <View style={styles.quickActionsSection}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <View style={[styles.quickActionsSection, darkModeEnabled && styles.darkSection]}>
+          <Text style={[styles.sectionTitle, darkModeEnabled && styles.darkText]}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
-            <TouchableOpacity style={styles.quickAction} onPress={() => {
-              Alert.alert('Coming Soon', 'Reports feature will be available in a future update.');
+            <TouchableOpacity style={[styles.quickAction, darkModeEnabled && styles.darkQuickAction]} onPress={() => {
+              Alert.alert('Reports Chart', 'View your detailed reports in the chart above.');
             }}>
-              <Text style={styles.quickActionIcon}>📈</Text>
-              <Text style={styles.quickActionText}>View Reports</Text>
+              <Text style={styles.quickActionIcon}>📊</Text>
+              <Text style={[styles.quickActionText, darkModeEnabled && styles.darkText]}>View Reports Chart</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.quickAction} onPress={() => navigation.navigate('NutritionGoals')}>
+            <TouchableOpacity style={[styles.quickAction, darkModeEnabled && styles.darkQuickAction]} onPress={() => navigation.navigate('NutritionGoals')}>
               <Text style={styles.quickActionIcon}>🎯</Text>
-              <Text style={styles.quickActionText}>Set Goals</Text>
+              <Text style={[styles.quickActionText, darkModeEnabled && styles.darkText]}>Set Goals</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.quickAction} onPress={() => {
+            <TouchableOpacity style={[styles.quickAction, darkModeEnabled && styles.darkQuickAction]} onPress={() => {
               Alert.alert('Coming Soon', 'Share progress feature will be available in a future update.');
             }}>
               <Text style={styles.quickActionIcon}>📱</Text>
-              <Text style={styles.quickActionText}>Share Progress</Text>
+              <Text style={[styles.quickActionText, darkModeEnabled && styles.darkText]}>Share Progress</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Settings Menu */}
-        <View style={styles.settingsSection}>
-          <Text style={styles.sectionTitle}>Settings</Text>
+        <View style={[styles.settingsSection, darkModeEnabled && styles.darkSection]}>
+          <Text style={[styles.sectionTitle, darkModeEnabled && styles.darkText]}>Settings</Text>
 
           {menuItems.map(item => (
-            <TouchableOpacity key={item.id} style={styles.menuItem} onPress={item.action}>
+            <TouchableOpacity key={item.id} style={[styles.menuItem, darkModeEnabled && styles.darkMenuItem]} onPress={item.action}>
               <View style={styles.menuItemLeft}>
-                <View style={styles.menuIcon}>
+                <View style={[styles.menuIcon, darkModeEnabled && styles.darkMenuIcon]}>
                   <Text style={styles.menuIconText}>{item.icon}</Text>
                 </View>
                 <View style={styles.menuContent}>
-                  <Text style={styles.menuTitle}>{item.title}</Text>
-                  <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+                  <Text style={[styles.menuTitle, darkModeEnabled && styles.darkText]}>{item.title}</Text>
+                  <Text style={[styles.menuSubtitle, darkModeEnabled && styles.darkSubText]}>{item.subtitle}</Text>
                 </View>
               </View>
-              <Text style={styles.menuArrow}>›</Text>
+              <Text style={[styles.menuArrow, darkModeEnabled && styles.darkSubText]}>›</Text>
             </TouchableOpacity>
           ))}
 
           {/* Toggle Settings */}
           <View style={styles.toggleSection}>
-            <View style={styles.toggleItem}>
+            <View style={[styles.toggleItem, darkModeEnabled && styles.darkToggleItem]}>
               <View style={styles.toggleLeft}>
-                <Text style={styles.toggleIcon}>🔔</Text>
+                <Text style={[styles.toggleIcon, darkModeEnabled && styles.darkToggleIcon]}>🔔</Text>
                 <View style={styles.toggleContent}>
-                  <Text style={styles.toggleTitle}>Push Notifications</Text>
-                  <Text style={styles.toggleSubtitle}>Get reminders and updates</Text>
+                  <Text style={[styles.toggleTitle, darkModeEnabled && styles.darkText]}>Push Notifications</Text>
+                  <Text style={[styles.toggleSubtitle, darkModeEnabled && styles.darkSubText]}>Get reminders and updates</Text>
                 </View>
               </View>
               <Switch
                 value={notificationsEnabled}
                 onValueChange={setNotificationsEnabled}
-                trackColor={{false: '#E0E0E0', true: '#91C788'}}
+                trackColor={{false: darkModeEnabled ? '#444' : '#E0E0E0', true: '#91C788'}}
                 thumbColor={notificationsEnabled ? '#fff' : '#f4f3f4'}
               />
             </View>
 
-            <View style={styles.toggleItem}>
+            <View style={[styles.toggleItem, darkModeEnabled && styles.darkToggleItem]}>
               <View style={styles.toggleLeft}>
-                <Text style={styles.toggleIcon}>🌙</Text>
+                <Text style={[styles.toggleIcon, darkModeEnabled && styles.darkToggleIcon]}>🌙</Text>
                 <View style={styles.toggleContent}>
-                  <Text style={styles.toggleTitle}>Dark Mode</Text>
-                  <Text style={styles.toggleSubtitle}>Use dark theme</Text>
+                  <Text style={[styles.toggleTitle, darkModeEnabled && styles.darkText]}>Dark Mode</Text>
+                  <Text style={[styles.toggleSubtitle, darkModeEnabled && styles.darkSubText]}>Use dark theme</Text>
                 </View>
               </View>
               <Switch
                 value={darkModeEnabled}
                 onValueChange={setDarkModeEnabled}
-                trackColor={{false: '#E0E0E0', true: '#91C788'}}
+                trackColor={{false: darkModeEnabled ? '#444' : '#E0E0E0', true: '#91C788'}}
                 thumbColor={darkModeEnabled ? '#fff' : '#f4f3f4'}
               />
             </View>
 
-            <View style={styles.toggleItem}>
+            <View style={[styles.toggleItem, darkModeEnabled && styles.darkToggleItem]}>
               <View style={styles.toggleLeft}>
-                <Text style={styles.toggleIcon}>🔒</Text>
+                <Text style={[styles.toggleIcon, darkModeEnabled && styles.darkToggleIcon]}>🔒</Text>
                 <View style={styles.toggleContent}>
-                  <Text style={styles.toggleTitle}>Private Profile</Text>
-                  <Text style={styles.toggleSubtitle}>Hide your activity from others</Text>
+                  <Text style={[styles.toggleTitle, darkModeEnabled && styles.darkText]}>Private Profile</Text>
+                  <Text style={[styles.toggleSubtitle, darkModeEnabled && styles.darkSubText]}>Hide your activity from others</Text>
                 </View>
               </View>
               <Switch
                 value={privateProfile}
                 onValueChange={setPrivateProfile}
-                trackColor={{false: '#E0E0E0', true: '#91C788'}}
+                trackColor={{false: darkModeEnabled ? '#444' : '#E0E0E0', true: '#91C788'}}
                 thumbColor={privateProfile ? '#fff' : '#f4f3f4'}
               />
             </View>
           </View>
         </View>
 
-        {/* Achievements */}
-        <View style={styles.achievementsSection}>
-          <Text style={styles.sectionTitle}>Achievements</Text>
-          <View style={styles.achievementsGrid}>
-            {achievements.map((achievement, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.achievementCard,
-                  !achievement.unlocked && styles.achievementLocked,
-                ]}>
-                <Text style={[
-                  styles.achievementIcon,
-                  !achievement.unlocked && styles.achievementIconLocked,
-                ]}>
-                  {achievement.icon}
-                </Text>
-                <Text style={[
-                  styles.achievementTitle,
-                  !achievement.unlocked && styles.achievementTextLocked,
-                ]}>
-                  {achievement.title}
-                </Text>
-                <Text style={[
-                  styles.achievementDescription,
-                  !achievement.unlocked && styles.achievementTextLocked,
-                ]}>
-                  {achievement.description}
-                </Text>
-                {achievement.unlocked && (
-                  <View style={styles.unlockedBadge}>
-                    <Text style={styles.unlockedText}>✓</Text>
-                  </View>
-                )}
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Support Section */}
-        <View style={styles.supportSection}>
-          <TouchableOpacity style={styles.supportItem} onPress={() => {
+        {/* Support Section - Removed Privacy Policy and Terms of Service */}
+        <View style={[styles.supportSection, darkModeEnabled && styles.darkSection]}>
+          <TouchableOpacity style={[styles.supportItem, darkModeEnabled && styles.darkSupportItem]} onPress={() => {
             Alert.alert('Help & Support', 'For support, please contact us at support@dinoapp.com');
           }}>
-            <Text style={styles.supportIcon}>❓</Text>
-            <Text style={styles.supportText}>Help & Support</Text>
+            <Text style={[styles.supportIcon, darkModeEnabled && styles.darkSupportIcon]}>❓</Text>
+            <Text style={[styles.supportText, darkModeEnabled && styles.darkText]}>Help & Support</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.supportItem} onPress={() => {
-            Alert.alert('Privacy Policy', 'Privacy policy details would be shown here.');
-          }}>
-            <Text style={styles.supportIcon}>📝</Text>
-            <Text style={styles.supportText}>Privacy Policy</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.supportItem} onPress={() => {
-            Alert.alert('Terms of Service', 'Terms of service details would be shown here.');
-          }}>
-            <Text style={styles.supportIcon}>📋</Text>
-            <Text style={styles.supportText}>Terms of Service</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.supportItem, styles.logoutItem]} onPress={handleLogout}>
+          <TouchableOpacity style={[styles.supportItem, styles.logoutItem, darkModeEnabled && styles.darkSupportItem]} onPress={handleLogout}>
             <Text style={styles.logoutIcon}>🚪</Text>
             <Text style={styles.logoutText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.versionInfo}>
-          <Text style={styles.versionText}>Dino v1.0.0</Text>
+        <View style={[styles.versionInfo, darkModeEnabled && styles.darkVersionInfo]}>
+          <Text style={[styles.versionText, darkModeEnabled && styles.darkSubText]}>Dino v1.0.0</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -315,35 +296,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  darkContainer: {
+    backgroundColor: '#1a1a1a',
+  },
   profileHeader: {
     alignItems: 'center',
     paddingVertical: 30,
     paddingHorizontal: 20,
   },
-  avatarContainer: {
-    position: 'relative',
-    marginBottom: 15,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 3,
-    borderColor: '#91C788',
-  },
-  editAvatarButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#91C788',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editAvatarText: {
-    fontSize: 16,
+  darkProfileHeader: {
+    backgroundColor: '#2d2d2d',
   },
   userName: {
     fontSize: width * 0.06,
@@ -360,9 +322,21 @@ const styles = StyleSheet.create({
     fontSize: width * 0.035,
     color: '#999',
   },
+  darkText: {
+    color: '#ffffff',
+  },
+  darkSubText: {
+    color: '#cccccc',
+  },
+  darkAccent: {
+    color: '#91C788',
+  },
   statsSection: {
     paddingHorizontal: 20,
     marginBottom: 25,
+  },
+  darkSection: {
+    backgroundColor: '#2d2d2d',
   },
   sectionTitle: {
     fontSize: width * 0.05,
@@ -383,6 +357,9 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     alignItems: 'center',
   },
+  darkStatCard: {
+    backgroundColor: '#404040',
+  },
   statValue: {
     fontSize: width * 0.055,
     fontWeight: 'bold',
@@ -399,6 +376,29 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 2,
   },
+  reportsSection: {
+    paddingHorizontal: 20,
+    marginBottom: 25,
+  },
+  chartContainer: {
+    backgroundColor: '#F8F8F8',
+    borderRadius: 16,
+    padding: 15,
+    alignItems: 'center',
+  },
+  darkChartContainer: {
+    backgroundColor: '#404040',
+  },
+  chartDescription: {
+    fontSize: width * 0.035,
+    color: '#666',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  chartStyle: {
+    marginVertical: 8,
+    borderRadius: 16,
+  },
   quickActionsSection: {
     paddingHorizontal: 20,
     marginBottom: 25,
@@ -413,6 +413,9 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: 'center',
     width: width * 0.28,
+  },
+  darkQuickAction: {
+    backgroundColor: '#404040',
   },
   quickActionIcon: {
     fontSize: 24,
@@ -436,6 +439,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
+  darkMenuItem: {
+    borderBottomColor: '#404040',
+  },
   menuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -449,6 +455,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
+  },
+  darkMenuIcon: {
+    backgroundColor: '#505050',
   },
   menuIconText: {
     fontSize: 18,
@@ -481,6 +490,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
+  darkToggleItem: {
+    borderBottomColor: '#404040',
+  },
   toggleLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -496,6 +508,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 40,
   },
+  darkToggleIcon: {
+    backgroundColor: '#505050',
+  },
   toggleContent: {
     flex: 1,
   },
@@ -509,65 +524,6 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 2,
   },
-  achievementsSection: {
-    paddingHorizontal: 20,
-    marginBottom: 25,
-  },
-  achievementsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  achievementCard: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 12,
-    padding: 15,
-    width: width * 0.42,
-    marginBottom: 15,
-    alignItems: 'center',
-    position: 'relative',
-  },
-  achievementLocked: {
-    opacity: 0.5,
-  },
-  achievementIcon: {
-    fontSize: 32,
-    marginBottom: 10,
-  },
-  achievementIconLocked: {
-    opacity: 0.5,
-  },
-  achievementTitle: {
-    fontSize: width * 0.035,
-    fontWeight: '600',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  achievementDescription: {
-    fontSize: width * 0.03,
-    color: '#666',
-    textAlign: 'center',
-  },
-  achievementTextLocked: {
-    opacity: 0.6,
-  },
-  unlockedBadge: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#91C788',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  unlockedText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
   supportSection: {
     paddingHorizontal: 20,
     marginBottom: 25,
@@ -579,6 +535,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
+  darkSupportItem: {
+    borderBottomColor: '#404040',
+  },
   supportIcon: {
     fontSize: 18,
     marginRight: 15,
@@ -588,6 +547,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
     textAlign: 'center',
     lineHeight: 40,
+  },
+  darkSupportIcon: {
+    backgroundColor: '#505050',
   },
   supportText: {
     fontSize: width * 0.04,
@@ -606,6 +568,9 @@ const styles = StyleSheet.create({
   versionInfo: {
     alignItems: 'center',
     paddingVertical: 20,
+  },
+  darkVersionInfo: {
+    backgroundColor: '#2d2d2d',
   },
   versionText: {
     fontSize: width * 0.035,
