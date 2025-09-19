@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {View, Image, StyleSheet, SafeAreaView, Text} from 'react-native';
+import {Image, StyleSheet, SafeAreaView, Text} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
 export default function GreenScreen() {

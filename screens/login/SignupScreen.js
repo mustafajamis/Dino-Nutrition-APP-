@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   SafeAreaView,
   Dimensions,
   KeyboardAvoidingView,
@@ -14,7 +13,6 @@ import {
   ScrollView,
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
-import Icon from 'react-native-vector-icons/Feather';
 import {responsiveStyles as styles} from '../../style/ResponsiveUI';
 
 const {width} = Dimensions.get('window');
@@ -24,12 +22,12 @@ const SignupScreen = ({navigation}) => {
 
   return (
     <KeyboardAvoidingView
-      style={{flex: 1}}
+      style={styles.flexContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{flexGrow: 1}}>
+          contentContainerStyle={styles.flexGrowContainer}>
           <SafeAreaView style={styles.container}>
             {/* Top Green Wave */}
             <Svg

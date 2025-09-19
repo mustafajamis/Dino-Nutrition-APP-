@@ -26,7 +26,6 @@ const CreateProfileScreen = () => {
   const [age, setAge] = useState('');
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('US');
-  const [callingCode, setCallingCode] = useState('1');
 
   const genders = ['Male', 'Female', 'Non'];
 
@@ -101,7 +100,6 @@ const CreateProfileScreen = () => {
                 withCallingCodeButton
                 onSelect={country => {
                   setCountryCode(country.cca2);
-                  setCallingCode(country.callingCode[0]);
                 }}
               />
               <TextInput

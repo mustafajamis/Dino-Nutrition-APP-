@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef} from 'react';
 import {View, FlatList, Dimensions, StyleSheet, Animated} from 'react-native';
 import OnBoardingPage1 from './OnBoardingPage1';
 import OnBoardingPage2 from './OnBoardingPage2';

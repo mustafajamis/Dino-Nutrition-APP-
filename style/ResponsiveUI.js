@@ -122,4 +122,10 @@ export const responsiveStyles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 1.25,
   },
+  flexContainer: {
+    flex: 1,
+  },
+  flexGrowContainer: {
+    flexGrow: 1,
+  },
 });
