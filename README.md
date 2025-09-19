@@ -1,6 +1,6 @@
 # 🚀 Dino – Your Personal Nutrition Assistant  
 
-**Dino** is a mobile application designed to help students make **healthier food choices** using **AI-driven meal recognition** and **personalized meal plans**. With features like **calorie estimation**, **daily intake tracking**, and **dining hall integration**, Dino makes nutrition tracking effortless.
+**Dino** is a simple and fun mobile application designed to help you **track your daily calorie intake** effortlessly. With features like **easy meal logging**, **calorie tracking**, and **food scanning**, Dino makes staying on top of your nutrition goals simple and enjoyable.
 
 ---
 
@@ -27,12 +27,12 @@
 
 ## ✨ Features  
 
-✅ **AI-Powered Meal Recognition** – Take a picture of your meal and get an estimated calorie count.  
-✅ **Daily Calorie Tracking** – Log meals and track daily intake.  
-✅ **Personalized Meal Plans** – Get tailored meal recommendations based on dietary preferences.  
-✅ **Dining Hall Integration** – View meal options available in university dining halls.  
-✅ **Nutritional Insights** – Receive detailed reports on eating habits.  
-✅ **Progress Tracking** – Monitor long-term nutrition trends and improvements.  
+✅ **Simple Calorie Tracking** – Easily log your meals and track daily calorie intake  
+✅ **Quick Add Foods** – Instantly add common foods with pre-set calorie counts  
+✅ **Food Scanner** – Take pictures of your food for easy logging  
+✅ **Daily Goals** – Set and track your daily calorie targets  
+✅ **Meal History** – View your eating history and patterns  
+✅ **Clean & Simple UI** – Fun emojis and intuitive design make tracking enjoyable  
 
 ---
 
@@ -99,11 +99,9 @@ npx react-native start
 ### Core Technologies  
 
 - **React Native** – Cross-platform mobile development  
-- **TypeScript (if used)** – Strongly typed JavaScript for reliability  
-- **Python (Flask/FastAPI)** – Backend API services  
-- **TensorFlow/Keras** – AI-based meal recognition  
-- **PostgreSQL / Firebase** – Database for user data  
-- **AWS S3 / Google Cloud Storage** – Storing meal images  
+- **AsyncStorage** – Local data storage  
+- **React Navigation** – App navigation and routing  
+- **Context API** – State management for user data and authentication  
 
 ---
 
@@ -136,11 +134,9 @@ Dino-Nutrition-APP/
 │   ├── Onboarding/
 │   ├── Login/
 │   ├── Home/
-│   ├── ScanFood/
-│   ├── Calories/
-│   ├── Activity/
-│   ├── Profile/
-│   └── Settings/
+│   ├── Food/               # Food scanner
+│   ├── Calories/           # Calorie tracking
+│   └── Profile/
 │
 ├── context/                # Context API setup (auth, theme, etc.)
 │   └── AuthContext.js
@@ -244,6 +240,6 @@ This project is licensed under the **MIT License** – see the [LICENSE](LICENSE
 ## 🎉 Acknowledgments  
 
 💡 Thanks to all contributors!  
-🚀 Built with **React Native**, **Python**, and **AI-powered meal recognition**  
-📢 Inspired by the idea of making **healthy eating effortless for students**  
+🚀 Built with **React Native** for simple, cross-platform calorie tracking  
+📢 Inspired by the idea of making **healthy eating simple and fun**  
 
