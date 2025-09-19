@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -7,58 +7,136 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  Alert,
 } from 'react-native';
+import {BarChart} from 'react-native-chart-kit';
+import {useAuth} from '../../context/AuthContext';
 
 const {width} = Dimensions.get('window');
 
 const ActivityScreen = () => {
+  const {user, todayActivity, addExercise, getWeeklyStats} = useAuth();
   const [activeTab, setActiveTab] = useState('Today');
   const [weeklyGoal] = useState(150); // minutes
-  const [completedMinutes] = useState(108);
+  const [completedMinutes, setCompletedMinutes] = useState(0);
+  const [todayActivities, setTodayActivities] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
 
-  const todayActivities = [
-    {
-      id: 1,
-      type: 'Running',
-      duration: 30,
-      calories: 285,
-      time: '7:00 AM',
-      icon: '🏃‍♂️',
-    },
-    {
-      id: 2,
-      type: 'Yoga',
-      duration: 45,
-      calories: 120,
-      time: '6:30 PM',
-      icon: '🧘‍♀️',
-    },
-    {
-      id: 3,
-      type: 'Walking',
-      duration: 25,
-      calories: 95,
-      time: '8:15 PM',
-      icon: '🚶‍♂️',
-    },
-  ];
+  useEffect(() => {
+    if (todayActivity) {
+      const exercises = todayActivity.exercises || [];
+      setTodayActivities(exercises);
+      setCompletedMinutes(exercises.reduce((total, ex) => total + ex.duration, 0));
+    }
+  }, [todayActivity]);
 
-  const weeklyStats = [
-    {day: 'Mon', minutes: 45, goal: 30},
-    {day: 'Tue', minutes: 60, goal: 30},
-    {day: 'Wed', minutes: 20, goal: 30},
-    {day: 'Thu', minutes: 35, goal: 30},
-    {day: 'Fri', minutes: 50, goal: 30},
-    {day: 'Sat', minutes: 40, goal: 30},
-    {day: 'Sun', minutes: 15, goal: 30},
-  ];
+  useEffect(() => {
+    loadWeeklyData();
+  }, [user, loadWeeklyData]);
+
+  const loadWeeklyData = useCallback(async () => {
+    if (!user) {return;}
+
+    try {
+      const data = await getWeeklyStats();
+      setWeeklyData(data);
+    } catch (error) {
+      console.error('Error loading weekly data:', error);
+    }
+  }, [user, getWeeklyStats]);
+
+  const handleQuickWorkout = async (workout) => {
+    if (!user) {
+      Alert.alert('Error', 'Please log in to add activities');
+      return;
+    }
+
+    const result = await addExercise({
+      exerciseType: workout.name,
+      duration: workout.duration,
+      calories: Math.round(workout.duration * 5), // Rough estimate: 5 calories per minute
+    });
+
+    if (result.success) {
+      Alert.alert('Success', `${workout.name} added to your activities!`);
+    } else {
+      Alert.alert('Error', result.error);
+    }
+  };
+
+  const handleAddActivity = () => {
+    Alert.prompt(
+      'Add Activity',
+      'Enter activity type, duration in minutes, and calories burned (e.g., "Running, 30, 300"):',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Add',
+          onPress: async (input) => {
+            if (input) {
+              const parts = input.split(',');
+              const type = parts[0]?.trim();
+              const duration = parseInt(parts[1]?.trim(), 10) || 0;
+              const calories = parseInt(parts[2]?.trim(), 10) || 0;
+
+              if (type && duration > 0) {
+                const result = await addExercise({
+                  exerciseType: type,
+                  duration: duration,
+                  calories: calories || Math.round(duration * 5),
+                });
+
+                if (result.success) {
+                  Alert.alert('Success', 'Activity added successfully!');
+                } else {
+                  Alert.alert('Error', result.error);
+                }
+              } else {
+                Alert.alert('Error', 'Please enter valid activity type and duration');
+              }
+            }
+          },
+        },
+      ],
+      'plain-text'
+    );
+  };
 
   const quickWorkouts = [
     {name: '5-min Stretch', duration: 5, icon: '🤸‍♀️'},
     {name: 'Quick Walk', duration: 15, icon: '🚶‍♂️'},
     {name: 'HIIT Workout', duration: 20, icon: '💪'},
-    {name: 'Meditation', duration: 10, icon: '🧘‍♀️'},
+    {name: 'Yoga Session', duration: 30, icon: '🧘‍♀️'},
   ];
+
+  const chartConfig = {
+    backgroundColor: '#91C788',
+    backgroundGradientFrom: '#91C788',
+    backgroundGradientTo: '#a8d19a',
+    decimalPlaces: 0,
+    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+    style: {
+      borderRadius: 16,
+    },
+    propsForDots: {
+      r: '6',
+      strokeWidth: '2',
+      stroke: '#ffa726',
+    },
+  };
+
+  const getExerciseIcon = (type) => {
+    const lowerType = type.toLowerCase();
+    if (lowerType.includes('run')) {return '🏃‍♂️';}
+    if (lowerType.includes('walk')) {return '🚶‍♂️';}
+    if (lowerType.includes('yoga')) {return '🧘‍♀️';}
+    if (lowerType.includes('bike') || lowerType.includes('cycling')) {return '🚴‍♂️';}
+    if (lowerType.includes('swim')) {return '🏊‍♂️';}
+    if (lowerType.includes('weight') || lowerType.includes('strength')) {return '🏋️‍♂️';}
+    if (lowerType.includes('stretch')) {return '🤸‍♀️';}
+    return '💪';
+  };
 
   const progressPercentage = (completedMinutes / weeklyGoal) * 100;
 
@@ -121,7 +199,10 @@ const ActivityScreen = () => {
           <Text style={styles.sectionTitle}>Quick Start</Text>
           <View style={styles.quickGrid}>
             {quickWorkouts.map((workout, index) => (
-              <TouchableOpacity key={index} style={styles.quickItem}>
+              <TouchableOpacity
+                key={index}
+                style={styles.quickItem}
+                onPress={() => handleQuickWorkout(workout)}>
                 <Text style={styles.quickIcon}>{workout.icon}</Text>
                 <Text style={styles.quickName}>{workout.name}</Text>
                 <Text style={styles.quickDuration}>{workout.duration} min</Text>
@@ -135,58 +216,60 @@ const ActivityScreen = () => {
           <View style={styles.activitiesSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Today's Activities</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handleAddActivity}>
                 <Text style={styles.addButton}>+ Add Activity</Text>
               </TouchableOpacity>
             </View>
 
-            {todayActivities.map(activity => (
-              <View key={activity.id} style={styles.activityCard}>
-                <View style={styles.activityIcon}>
-                  <Text style={styles.activityEmoji}>{activity.icon}</Text>
-                </View>
-                <View style={styles.activityDetails}>
-                  <Text style={styles.activityType}>{activity.type}</Text>
-                  <Text style={styles.activityTime}>{activity.time}</Text>
-                </View>
-                <View style={styles.activityStats}>
-                  <Text style={styles.activityDuration}>{activity.duration} min</Text>
-                  <Text style={styles.activityCalories}>{activity.calories} cal</Text>
-                </View>
+            {todayActivities.length === 0 ? (
+              <View style={styles.emptyActivities}>
+                <Text style={styles.emptyText}>No activities logged yet today</Text>
+                <Text style={styles.emptySubtext}>Get moving and log your first activity!</Text>
               </View>
-            ))}
+            ) : (
+              todayActivities.map((activity, index) => (
+                <View key={activity.id || index} style={styles.activityCard}>
+                  <View style={styles.activityIcon}>
+                    <Text style={styles.activityEmoji}>{getExerciseIcon(activity.type)}</Text>
+                  </View>
+                  <View style={styles.activityDetails}>
+                    <Text style={styles.activityType}>{activity.type}</Text>
+                    <Text style={styles.activityTime}>{activity.time}</Text>
+                  </View>
+                  <View style={styles.activityStats}>
+                    <Text style={styles.activityDuration}>{activity.duration} min</Text>
+                    <Text style={styles.activityCalories}>{activity.calories} cal</Text>
+                  </View>
+                </View>
+              ))
+            )}
           </View>
         )}
 
         {/* Weekly Chart */}
         {activeTab === 'Week' && (
           <View style={styles.chartSection}>
-            <Text style={styles.sectionTitle}>Weekly Overview</Text>
-            <View style={styles.chart}>
-              {weeklyStats.map((day, index) => (
-                <View key={index} style={styles.chartBar}>
-                  <View style={styles.barContainer}>
-                    <View
-                      style={[
-                        styles.bar,
-                        {
-                          height: Math.max((day.minutes / 60) * 100, 10),
-                          backgroundColor: day.minutes >= day.goal ? '#91C788' : '#E0E0E0',
-                        },
-                      ]}
-                    />
-                    <View
-                      style={[
-                        styles.goalLine,
-                        {bottom: (day.goal / 60) * 100},
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.chartDay}>{day.day}</Text>
-                  <Text style={styles.chartMinutes}>{day.minutes}m</Text>
-                </View>
-              ))}
-            </View>
+            <Text style={styles.sectionTitle}>Weekly Activity Minutes</Text>
+            {weeklyData.length > 0 ? (
+              <BarChart
+                data={{
+                  labels: weeklyData.map(day => day.day),
+                  datasets: [{
+                    data: weeklyData.map(day => day.exerciseMinutes),
+                  }],
+                }}
+                width={width - 40}
+                height={220}
+                chartConfig={chartConfig}
+                style={styles.chart}
+                showValuesOnTopOfBars={true}
+              />
+            ) : (
+              <View style={styles.emptyChart}>
+                <Text style={styles.emptyText}>No activity data yet</Text>
+                <Text style={styles.emptySubtext}>Start logging activities to see your weekly progress!</Text>
+              </View>
+            )}
           </View>
         )}
 
@@ -420,6 +503,28 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
     fontWeight: '600',
   },
+  emptyActivities: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  emptyText: {
+    fontSize: width * 0.04,
+    color: '#666',
+    fontWeight: '500',
+  },
+  emptySubtext: {
+    fontSize: width * 0.035,
+    color: '#999',
+    marginTop: 5,
+  },
+  emptyChart: {
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  chart: {
+    marginVertical: 8,
+    borderRadius: 16,
+  },
   activityCard: {
     backgroundColor: '#F8F8F8',
     borderRadius: 12,
@@ -470,7 +575,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 25,
   },
-  chart: {
+  weeklyChart: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',

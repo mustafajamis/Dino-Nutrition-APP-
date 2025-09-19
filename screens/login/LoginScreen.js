@@ -12,15 +12,50 @@ import {
   Keyboard,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
-import Icon from 'react-native-vector-icons/Feather'; // Eye icon
 import {responsiveStyles as styles} from '../../style/ResponsiveUI';
+import {useAuth} from '../../context/AuthContext';
 
 const {width} = Dimensions.get('window');
 
 const LoginScreen = ({navigation}) => {
-  const [secureText, setSecureText] = useState(true); // toggle for password
+  const [secureText, setSecureText] = useState(true);
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const {login} = useAuth();
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleLogin = async () => {
+    if (!formData.username.trim() || !formData.password.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await login(formData.username, formData.password);
+      if (result.success) {
+        navigation.navigate('Main');
+      } else {
+        Alert.alert('Error', result.error);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -55,6 +90,8 @@ const LoginScreen = ({navigation}) => {
                   placeholder="Dino@yahoo.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  value={formData.username}
+                  onChangeText={(text) => handleInputChange('username', text)}
                 />
                 <Text style={styles.inputIcon}>✉️</Text>
               </View>
@@ -66,6 +103,8 @@ const LoginScreen = ({navigation}) => {
                   style={styles.input}
                   placeholder="Enter your password"
                   secureTextEntry={secureText}
+                  value={formData.password}
+                  onChangeText={(text) => handleInputChange('password', text)}
                 />
                 <TouchableOpacity onPress={() => setSecureText(!secureText)}>
                   <Text style={styles.inputIcon}>👁️</Text>
@@ -73,8 +112,13 @@ const LoginScreen = ({navigation}) => {
               </View>
 
               {/* Login Button */}
-              <TouchableOpacity style={styles.loginButton}>
-                <Text style={styles.loginText}>Confirm and continue</Text>
+              <TouchableOpacity
+                style={[styles.loginButton, loading && {opacity: 0.6}]}
+                onPress={handleLogin}
+                disabled={loading}>
+                <Text style={styles.loginText}>
+                  {loading ? 'Logging in...' : 'Confirm and continue'}
+                </Text>
               </TouchableOpacity>
 
               {/* Footer */}
