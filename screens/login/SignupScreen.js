@@ -12,15 +12,58 @@ import {
   Keyboard,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
-import Icon from 'react-native-vector-icons/Feather';
 import {responsiveStyles as styles} from '../../style/ResponsiveUI';
+import {useAuth} from '../../context/AuthContext';
 
 const {width} = Dimensions.get('window');
 
 const SignupScreen = ({navigation}) => {
   const [secureText, setSecureText] = useState(true);
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const {signup} = useAuth();
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSignup = async () => {
+    if (!formData.username.trim() || !formData.email.trim() || !formData.password.trim()) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters long');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await signup(formData);
+      if (result.success) {
+        Alert.alert('Success', 'Account created successfully!', [
+          {text: 'OK', onPress: () => navigation.navigate('CreateProfile')},
+        ]);
+      } else {
+        Alert.alert('Error', result.error);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -56,6 +99,8 @@ const SignupScreen = ({navigation}) => {
                   placeholder="Enter your username"
                   autoCapitalize="none"
                   autoCorrect={false}
+                  value={formData.username}
+                  onChangeText={(text) => handleInputChange('username', text)}
                 />
                 <Text style={styles.inputIcon}>👤</Text>
               </View>
@@ -69,6 +114,8 @@ const SignupScreen = ({navigation}) => {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
+                  value={formData.email}
+                  onChangeText={(text) => handleInputChange('email', text)}
                 />
                 <Text style={styles.inputIcon}>✉️</Text>
               </View>
@@ -82,6 +129,8 @@ const SignupScreen = ({navigation}) => {
                   secureTextEntry={secureText}
                   autoCapitalize="none"
                   autoCorrect={false}
+                  value={formData.password}
+                  onChangeText={(text) => handleInputChange('password', text)}
                 />
                 <TouchableOpacity onPress={() => setSecureText(!secureText)}>
                   <Text style={styles.inputIcon}>👁️</Text>
@@ -90,9 +139,12 @@ const SignupScreen = ({navigation}) => {
 
               {/* Signup Button */}
               <TouchableOpacity
-                style={styles.signupButton}
-                onPress={() => navigation.navigate('CreateProfile')}>
-                <Text style={styles.loginText}>Signup</Text>
+                style={[styles.signupButton, loading && {opacity: 0.6}]}
+                onPress={handleSignup}
+                disabled={loading}>
+                <Text style={styles.loginText}>
+                  {loading ? 'Creating Account...' : 'Signup'}
+                </Text>
               </TouchableOpacity>
 
               {/* Footer */}
