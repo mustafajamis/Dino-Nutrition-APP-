@@ -12,11 +12,13 @@ import {
   Alert,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
+import {useNavigation} from '@react-navigation/native';
 
 const {width} = Dimensions.get('window');
 
 const ProfileScreen = () => {
   const {user, logout, getMonthlyStats} = useAuth();
+  const navigation = useNavigation();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [privateProfile, setPrivateProfile] = useState(false);
@@ -61,28 +63,30 @@ const ProfileScreen = () => {
       title: 'Edit Profile',
       subtitle: 'Update your personal information',
       icon: '👤',
-      action: () => console.log('Edit Profile'),
+      action: () => navigation.navigate('EditProfile'),
     },
     {
       id: 2,
       title: 'Nutrition Goals',
       subtitle: 'Set your daily calorie and macro targets',
       icon: '🎯',
-      action: () => console.log('Nutrition Goals'),
+      action: () => navigation.navigate('NutritionGoals'),
     },
     {
       id: 3,
       title: 'Food Preferences',
       subtitle: 'Dietary restrictions and preferences',
       icon: '🍽️',
-      action: () => console.log('Food Preferences'),
+      action: () => navigation.navigate('FoodPreferences'),
     },
     {
       id: 4,
       title: 'Notifications',
       subtitle: 'Manage your app notifications',
       icon: '🔔',
-      action: () => console.log('Notifications'),
+      action: () => {
+        Alert.alert('Coming Soon', 'Notification settings will be available in a future update.');
+      },
     },
     {
       id: 5,
@@ -140,15 +144,19 @@ const ProfileScreen = () => {
         <View style={styles.quickActionsSection}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.quickActionsGrid}>
-            <TouchableOpacity style={styles.quickAction}>
+            <TouchableOpacity style={styles.quickAction} onPress={() => {
+              Alert.alert('Coming Soon', 'Reports feature will be available in a future update.');
+            }}>
               <Text style={styles.quickActionIcon}>📈</Text>
               <Text style={styles.quickActionText}>View Reports</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.quickAction}>
+            <TouchableOpacity style={styles.quickAction} onPress={() => navigation.navigate('NutritionGoals')}>
               <Text style={styles.quickActionIcon}>🎯</Text>
               <Text style={styles.quickActionText}>Set Goals</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.quickAction}>
+            <TouchableOpacity style={styles.quickAction} onPress={() => {
+              Alert.alert('Coming Soon', 'Share progress feature will be available in a future update.');
+            }}>
               <Text style={styles.quickActionIcon}>📱</Text>
               <Text style={styles.quickActionText}>Share Progress</Text>
             </TouchableOpacity>
@@ -267,22 +275,28 @@ const ProfileScreen = () => {
 
         {/* Support Section */}
         <View style={styles.supportSection}>
-          <TouchableOpacity style={styles.supportItem}>
+          <TouchableOpacity style={styles.supportItem} onPress={() => {
+            Alert.alert('Help & Support', 'For support, please contact us at support@dinoapp.com');
+          }}>
             <Text style={styles.supportIcon}>❓</Text>
             <Text style={styles.supportText}>Help & Support</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.supportItem}>
+          <TouchableOpacity style={styles.supportItem} onPress={() => {
+            Alert.alert('Privacy Policy', 'Privacy policy details would be shown here.');
+          }}>
             <Text style={styles.supportIcon}>📝</Text>
             <Text style={styles.supportText}>Privacy Policy</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.supportItem}>
+          <TouchableOpacity style={styles.supportItem} onPress={() => {
+            Alert.alert('Terms of Service', 'Terms of service details would be shown here.');
+          }}>
             <Text style={styles.supportIcon}>📋</Text>
             <Text style={styles.supportText}>Terms of Service</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.supportItem, styles.logoutItem]}>
+          <TouchableOpacity style={[styles.supportItem, styles.logoutItem]} onPress={handleLogout}>
             <Text style={styles.logoutIcon}>🚪</Text>
             <Text style={styles.logoutText}>Sign Out</Text>
           </TouchableOpacity>
