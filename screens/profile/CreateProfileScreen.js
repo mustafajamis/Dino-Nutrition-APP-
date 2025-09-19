@@ -45,7 +45,7 @@ const CreateProfileScreen = () => {
       const result = await updateProfile({
         name: name.trim(),
         gender: selectedGender,
-        age: parseInt(age),
+        age: parseInt(age, 10),
         phone: phone.trim(),
       });
 

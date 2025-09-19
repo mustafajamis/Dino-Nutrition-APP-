@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -32,18 +32,18 @@ const ActivityScreen = () => {
 
   useEffect(() => {
     loadWeeklyData();
-  }, [user]);
+  }, [user, loadWeeklyData]);
 
-  const loadWeeklyData = async () => {
-    if (!user) return;
-    
+  const loadWeeklyData = useCallback(async () => {
+    if (!user) {return;}
+
     try {
       const data = await getWeeklyStats();
       setWeeklyData(data);
     } catch (error) {
       console.error('Error loading weekly data:', error);
     }
-  };
+  }, [user, getWeeklyStats]);
 
   const handleQuickWorkout = async (workout) => {
     if (!user) {
@@ -76,16 +76,16 @@ const ActivityScreen = () => {
             if (input) {
               const parts = input.split(',');
               const type = parts[0]?.trim();
-              const duration = parseInt(parts[1]?.trim()) || 0;
-              const calories = parseInt(parts[2]?.trim()) || 0;
-              
+              const duration = parseInt(parts[1]?.trim(), 10) || 0;
+              const calories = parseInt(parts[2]?.trim(), 10) || 0;
+
               if (type && duration > 0) {
                 const result = await addExercise({
                   exerciseType: type,
                   duration: duration,
                   calories: calories || Math.round(duration * 5),
                 });
-                
+
                 if (result.success) {
                   Alert.alert('Success', 'Activity added successfully!');
                 } else {
@@ -128,13 +128,13 @@ const ActivityScreen = () => {
 
   const getExerciseIcon = (type) => {
     const lowerType = type.toLowerCase();
-    if (lowerType.includes('run')) return '🏃‍♂️';
-    if (lowerType.includes('walk')) return '🚶‍♂️';
-    if (lowerType.includes('yoga')) return '🧘‍♀️';
-    if (lowerType.includes('bike') || lowerType.includes('cycling')) return '🚴‍♂️';
-    if (lowerType.includes('swim')) return '🏊‍♂️';
-    if (lowerType.includes('weight') || lowerType.includes('strength')) return '🏋️‍♂️';
-    if (lowerType.includes('stretch')) return '🤸‍♀️';
+    if (lowerType.includes('run')) {return '🏃‍♂️';}
+    if (lowerType.includes('walk')) {return '🚶‍♂️';}
+    if (lowerType.includes('yoga')) {return '🧘‍♀️';}
+    if (lowerType.includes('bike') || lowerType.includes('cycling')) {return '🚴‍♂️';}
+    if (lowerType.includes('swim')) {return '🏊‍♂️';}
+    if (lowerType.includes('weight') || lowerType.includes('strength')) {return '🏋️‍♂️';}
+    if (lowerType.includes('stretch')) {return '🤸‍♀️';}
     return '💪';
   };
 
@@ -199,8 +199,8 @@ const ActivityScreen = () => {
           <Text style={styles.sectionTitle}>Quick Start</Text>
           <View style={styles.quickGrid}>
             {quickWorkouts.map((workout, index) => (
-              <TouchableOpacity 
-                key={index} 
+              <TouchableOpacity
+                key={index}
                 style={styles.quickItem}
                 onPress={() => handleQuickWorkout(workout)}>
                 <Text style={styles.quickIcon}>{workout.icon}</Text>
@@ -255,8 +255,8 @@ const ActivityScreen = () => {
                 data={{
                   labels: weeklyData.map(day => day.day),
                   datasets: [{
-                    data: weeklyData.map(day => day.exerciseMinutes)
-                  }]
+                    data: weeklyData.map(day => day.exerciseMinutes),
+                  }],
                 }}
                 width={width - 40}
                 height={220}
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 25,
   },
-  chart: {
+  weeklyChart: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',

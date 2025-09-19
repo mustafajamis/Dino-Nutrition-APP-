@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState, useEffect} from 'react';
+import React, {createContext, useContext, useState, useEffect, useCallback} from 'react';
 import DatabaseService from '../services/DatabaseService';
 
 const AuthContext = createContext();
@@ -24,7 +24,7 @@ export const AuthProvider = ({children}) => {
     if (user) {
       loadTodayActivity();
     }
-  }, [user]);
+  }, [user, loadTodayActivity]);
 
   const checkAuthStatus = async () => {
     try {
@@ -39,16 +39,16 @@ export const AuthProvider = ({children}) => {
     }
   };
 
-  const loadTodayActivity = async () => {
-    if (!user) return;
-    
+  const loadTodayActivity = useCallback(async () => {
+    if (!user) {return;}
+
     try {
       const activity = await DatabaseService.getTodayActivity(user.id);
       setTodayActivity(activity);
     } catch (error) {
       console.error('Error loading today activity:', error);
     }
-  };
+  }, [user]);
 
   const signup = async (userData) => {
     try {
@@ -89,8 +89,8 @@ export const AuthProvider = ({children}) => {
   };
 
   const updateProfile = async (updateData) => {
-    if (!user) return {success: false, error: 'No user logged in'};
-    
+    if (!user) {return {success: false, error: 'No user logged in'};}
+
     try {
       const updatedUser = await DatabaseService.updateUser(user.id, updateData);
       await DatabaseService.setCurrentUser(updatedUser);
@@ -103,8 +103,8 @@ export const AuthProvider = ({children}) => {
   };
 
   const addMeal = async (mealData) => {
-    if (!user) return {success: false, error: 'No user logged in'};
-    
+    if (!user) {return {success: false, error: 'No user logged in'};}
+
     try {
       const updatedActivity = await DatabaseService.addDailyActivity(user.id, {
         type: 'meal',
@@ -119,8 +119,8 @@ export const AuthProvider = ({children}) => {
   };
 
   const addExercise = async (exerciseData) => {
-    if (!user) return {success: false, error: 'No user logged in'};
-    
+    if (!user) {return {success: false, error: 'No user logged in'};}
+
     try {
       const updatedActivity = await DatabaseService.addDailyActivity(user.id, {
         type: 'exercise',
@@ -135,8 +135,8 @@ export const AuthProvider = ({children}) => {
   };
 
   const getWeeklyStats = async () => {
-    if (!user) return [];
-    
+    if (!user) {return [];}
+
     try {
       return await DatabaseService.getWeeklyStats(user.id);
     } catch (error) {
@@ -146,8 +146,8 @@ export const AuthProvider = ({children}) => {
   };
 
   const getMonthlyStats = async () => {
-    if (!user) return {};
-    
+    if (!user) {return {};}
+
     try {
       return await DatabaseService.getMonthlyStats(user.id);
     } catch (error) {

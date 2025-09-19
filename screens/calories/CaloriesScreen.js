@@ -14,7 +14,7 @@ import {useAuth} from '../../context/AuthContext';
 const {width} = Dimensions.get('window');
 
 const CaloriesScreen = () => {
-  const {user, todayActivity, addMeal, refreshTodayActivity} = useAuth();
+  const {user, todayActivity, addMeal} = useAuth();
   const [dailyGoal, setDailyGoal] = useState(2000);
   const [consumed, setConsumed] = useState(0);
   const [burned, setBurned] = useState(0);
@@ -89,15 +89,15 @@ const CaloriesScreen = () => {
             if (input) {
               const parts = input.split(',');
               const foodName = parts[0]?.trim();
-              const calories = parseInt(parts[1]?.trim()) || 0;
-              
+              const calories = parseInt(parts[1]?.trim(), 10) || 0;
+
               if (foodName && calories > 0) {
                 const result = await addMeal({
                   name: mealType,
                   calories: calories,
                   foods: [foodName],
                 });
-                
+
                 if (result.success) {
                   Alert.alert('Success', 'Meal added successfully!');
                 } else {
@@ -158,8 +158,8 @@ const CaloriesScreen = () => {
           <Text style={styles.sectionTitle}>Quick Add</Text>
           <View style={styles.quickAddGrid}>
             {quickAddFoods.map((food, index) => (
-              <TouchableOpacity 
-                key={index} 
+              <TouchableOpacity
+                key={index}
                 style={styles.quickAddItem}
                 onPress={() => handleQuickAdd(food)}>
                 <Text style={styles.quickAddIcon}>{food.icon}</Text>

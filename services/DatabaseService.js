@@ -20,10 +20,10 @@ class DatabaseService {
   async createUser(userData) {
     try {
       const users = await this.getAllUsers();
-      const existingUser = users.find(user => 
+      const existingUser = users.find(user =>
         user.username === userData.username || user.email === userData.email
       );
-      
+
       if (existingUser) {
         throw new Error('User with this username or email already exists');
       }
@@ -65,8 +65,8 @@ class DatabaseService {
   async getUserByCredentials(username, password) {
     try {
       const users = await this.getAllUsers();
-      return users.find(user => 
-        (user.username === username || user.email === username) && 
+      return users.find(user =>
+        (user.username === username || user.email === username) &&
         user.password === password
       );
     } catch (error) {
@@ -79,7 +79,7 @@ class DatabaseService {
     try {
       const users = await this.getAllUsers();
       const userIndex = users.findIndex(user => user.id === userId);
-      
+
       if (userIndex === -1) {
         throw new Error('User not found');
       }
@@ -103,9 +103,9 @@ class DatabaseService {
     try {
       const activities = await this.getUserActivities(userId);
       const today = new Date().toISOString().split('T')[0];
-      
+
       // Find today's activity or create new one
-      let todayActivity = activities.find(activity => 
+      let todayActivity = activities.find(activity =>
         activity.date === today
       );
 
@@ -164,7 +164,7 @@ class DatabaseService {
       const key = `activities_${userId}`;
       const activitiesJson = await AsyncStorage.getItem(key);
       const activities = activitiesJson ? JSON.parse(activitiesJson) : [];
-      
+
       // Sort by date descending and limit results
       return activities
         .sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -179,7 +179,7 @@ class DatabaseService {
     try {
       const today = new Date().toISOString().split('T')[0];
       const activities = await this.getUserActivities(userId);
-      
+
       return activities.find(activity => activity.date === today) || {
         id: this.generateId(),
         userId: userId,
@@ -209,15 +209,15 @@ class DatabaseService {
         const date = new Date(today);
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
-        
+
         const dayActivity = activities.find(activity => activity.date === dateStr);
-        
+
         weeklyData.push({
           date: dateStr,
           day: date.toLocaleDateString('en-US', { weekday: 'short' }),
           calories: dayActivity ? dayActivity.totalCaloriesConsumed : 0,
           burned: dayActivity ? dayActivity.totalCaloriesBurned : 0,
-          exerciseMinutes: dayActivity ? 
+          exerciseMinutes: dayActivity ?
             dayActivity.exercises.reduce((total, ex) => total + ex.duration, 0) : 0,
         });
       }
@@ -251,13 +251,19 @@ class DatabaseService {
         );
       });
 
-      monthlyData.averageDaily = monthlyData.activeDays > 0 ? 
+      monthlyData.averageDaily = monthlyData.activeDays > 0 ?
         Math.round(monthlyData.totalCalories / monthlyData.activeDays) : 0;
 
       return monthlyData;
     } catch (error) {
       console.error('Error getting monthly stats:', error);
-      return monthlyData;
+      return {
+        totalCalories: 0,
+        totalBurned: 0,
+        averageDaily: 0,
+        activeDays: 0,
+        totalExerciseMinutes: 0,
+      };
     }
   }
 
