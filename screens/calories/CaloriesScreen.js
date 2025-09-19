@@ -17,7 +17,6 @@ const CaloriesScreen = () => {
   const {user, todayActivity, addMeal} = useAuth();
   const [dailyGoal, setDailyGoal] = useState(2000);
   const [consumed, setConsumed] = useState(0);
-  const [burned, setBurned] = useState(0);
   const [meals, setMeals] = useState([]);
 
   useEffect(() => {
@@ -29,12 +28,11 @@ const CaloriesScreen = () => {
   useEffect(() => {
     if (todayActivity) {
       setConsumed(todayActivity.totalCaloriesConsumed || 0);
-      setBurned(todayActivity.totalCaloriesBurned || 0);
       setMeals(todayActivity.meals || []);
     }
   }, [todayActivity]);
 
-  const remaining = dailyGoal - consumed + burned;
+  const remaining = dailyGoal - consumed;
   const progressPercentage = Math.min((consumed / dailyGoal) * 100, 100);
 
   const quickAddFoods = [
@@ -143,12 +141,12 @@ const CaloriesScreen = () => {
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{consumed}</Text>
-              <Text style={styles.statLabel}>Food</Text>
+              <Text style={styles.statLabel}>Consumed</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{burned}</Text>
-              <Text style={styles.statLabel}>Exercise</Text>
+              <Text style={styles.statNumber}>{remaining > 0 ? remaining : 0}</Text>
+              <Text style={styles.statLabel}>Remaining</Text>
             </View>
           </View>
         </View>
