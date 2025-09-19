@@ -133,6 +133,22 @@ export const AuthProvider = ({children}) => {
     await loadTodayActivity();
   };
 
+  const setDailyGoal = async (goal) => {
+    if (!user) {return {success: false, error: 'No user logged in'};}
+
+    try {
+      const updatedUser = await DatabaseService.updateUser(user.id, {
+        dailyCalorieGoal: goal,
+      });
+      await DatabaseService.setCurrentUser(updatedUser);
+      setUser(updatedUser);
+      return {success: true, user: updatedUser};
+    } catch (error) {
+      console.error('Set daily goal error:', error);
+      return {success: false, error: error.message};
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -144,6 +160,7 @@ export const AuthProvider = ({children}) => {
     addMeal,
     getMonthlyStats,
     refreshTodayActivity,
+    setDailyGoal,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
