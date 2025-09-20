@@ -16,6 +16,7 @@ const HomeScreen = () => {
   const {user, todayActivity, setDailyGoal} = useAuth();
   const navigation = useNavigation();
   const [isSilent, setIsSilent] = useState(false);
+  const [darkModeEnabled] = useState(true); // Dark mode default
 
   const handleSetGoal = () => {
     Alert.prompt(
@@ -67,11 +68,11 @@ const HomeScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, darkModeEnabled && styles.darkContainer]}>
       <ScrollView>
         {/* Header Section */}
-        <View style={styles.header}>
-          <Text style={styles.greeting}>Hi, {user?.name || user?.username || 'User'}</Text>
+        <View style={[styles.header, darkModeEnabled && styles.darkHeader]}>
+          <Text style={[styles.greeting, darkModeEnabled && styles.darkText]}>Hi, {user?.name || user?.username || 'User'}</Text>
 
           <TouchableOpacity onPress={() => setIsSilent(!isSilent)}>
             <Text style={styles.bell}>{isSilent ? '🔕' : '🔔'}</Text>
@@ -79,58 +80,58 @@ const HomeScreen = () => {
         </View>
 
         {/* Today's Summary */}
-        <View style={styles.summaryCard}>
-          <Text style={styles.cardTitle}>Today's Summary</Text>
+        <View style={[styles.summaryCard, darkModeEnabled && styles.darkSummaryCard]}>
+          <Text style={[styles.cardTitle, darkModeEnabled && styles.darkCardTitle]}>Today's Summary</Text>
           <View style={styles.summaryStats}>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{todayActivity?.totalCaloriesConsumed || 0}</Text>
-              <Text style={styles.statLabel}>Calories</Text>
+              <Text style={[styles.statNumber, darkModeEnabled && styles.darkStatNumber]}>{todayActivity?.totalCaloriesConsumed || 0}</Text>
+              <Text style={[styles.statLabel, darkModeEnabled && styles.darkStatLabel]}>Calories</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{todayActivity?.meals?.length || 0}</Text>
-              <Text style={styles.statLabel}>Meals</Text>
+              <Text style={[styles.statNumber, darkModeEnabled && styles.darkStatNumber]}>{todayActivity?.meals?.length || 0}</Text>
+              <Text style={[styles.statLabel, darkModeEnabled && styles.darkStatLabel]}>Meals</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{user?.dailyCalorieGoal || 2000}</Text>
-              <Text style={styles.statLabel}>Goal</Text>
+              <Text style={[styles.statNumber, darkModeEnabled && styles.darkStatNumber]}>{user?.dailyCalorieGoal || 2000}</Text>
+              <Text style={[styles.statLabel, darkModeEnabled && styles.darkStatLabel]}>Goal</Text>
             </View>
           </View>
         </View>
 
         {/* Quick Actions */}
-        <View style={styles.quickActions}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <View style={[styles.quickActions, darkModeEnabled && styles.darkSection]}>
+          <Text style={[styles.sectionTitle, darkModeEnabled && styles.darkText]}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
-            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Calories')}>
+            <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={() => navigation.navigate('Calories')}>
               <Text style={styles.actionIcon}>🍽️</Text>
-              <Text style={styles.actionText}>Log Meal</Text>
+              <Text style={[styles.actionText, darkModeEnabled && styles.darkText]}>Log Meal</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Scan')}>
+            <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={() => navigation.navigate('Scan')}>
               <Text style={styles.actionIcon}>📸</Text>
-              <Text style={styles.actionText}>Scan Food</Text>
+              <Text style={[styles.actionText, darkModeEnabled && styles.darkText]}>Scan Food</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard} onPress={handleSetGoal}>
+            <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={handleSetGoal}>
               <Text style={styles.actionIcon}>🎯</Text>
-              <Text style={styles.actionText}>Set Goal</Text>
+              <Text style={[styles.actionText, darkModeEnabled && styles.darkText]}>Set Goal</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionCard} onPress={runDatabaseTest}>
+            <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={runDatabaseTest}>
               <Text style={styles.actionIcon}>🧪</Text>
-              <Text style={styles.actionText}>Test DB</Text>
+              <Text style={[styles.actionText, darkModeEnabled && styles.darkText]}>Test DB</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Goals Progress */}
-        <View style={styles.goalsCard}>
+        <View style={[styles.goalsCard, darkModeEnabled && styles.darkGoalsCard]}>
           <View style={styles.goalHeader}>
-            <Text style={styles.cardTitle}>Daily Goals</Text>
-            <TouchableOpacity onPress={handleSetGoal} style={styles.editGoalButton}>
-              <Text style={styles.editGoalText}>Edit</Text>
+            <Text style={[styles.cardTitle, darkModeEnabled && styles.darkCardTitle]}>Daily Goals</Text>
+            <TouchableOpacity onPress={handleSetGoal} style={[styles.editGoalButton, darkModeEnabled && styles.darkEditGoalButton]}>
+              <Text style={[styles.editGoalText, darkModeEnabled && styles.darkEditGoalText]}>Edit</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.goalItem}>
-            <Text style={styles.goalLabel}>Calorie Goal</Text>
-            <View style={styles.progressBar}>
+            <Text style={[styles.goalLabel, darkModeEnabled && styles.darkText]}>Calorie Goal</Text>
+            <View style={[styles.progressBar, darkModeEnabled && styles.darkProgressBar]}>
               <View
                 style={[
                   styles.progressFill,
@@ -138,22 +139,22 @@ const HomeScreen = () => {
                 ]}
               />
             </View>
-            <Text style={styles.goalValue}>
+            <Text style={[styles.goalValue, darkModeEnabled && styles.darkText]}>
               {todayActivity?.totalCaloriesConsumed || 0} / {user?.dailyCalorieGoal || 2000}
             </Text>
           </View>
           <View style={styles.goalStats}>
             <View style={styles.goalStat}>
-              <Text style={styles.goalStatNumber}>
+              <Text style={[styles.goalStatNumber, darkModeEnabled && styles.darkText]}>
                 {Math.max(0, (user?.dailyCalorieGoal || 2000) - (todayActivity?.totalCaloriesConsumed || 0))}
               </Text>
-              <Text style={styles.goalStatLabel}>Remaining</Text>
+              <Text style={[styles.goalStatLabel, darkModeEnabled && styles.darkSubText]}>Remaining</Text>
             </View>
             <View style={styles.goalStat}>
-              <Text style={styles.goalStatNumber}>
+              <Text style={[styles.goalStatNumber, darkModeEnabled && styles.darkText]}>
                 {Math.round(((todayActivity?.totalCaloriesConsumed || 0) / (user?.dailyCalorieGoal || 2000)) * 100)}%
               </Text>
-              <Text style={styles.goalStatLabel}>Complete</Text>
+              <Text style={[styles.goalStatLabel, darkModeEnabled && styles.darkSubText]}>Complete</Text>
             </View>
           </View>
         </View>
@@ -167,6 +168,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  darkContainer: {
+    backgroundColor: '#1a1a1a',
+  },
   header: {
     marginTop: 20,
     paddingHorizontal: 20,
@@ -175,9 +179,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     justifyContent: 'space-between',
   },
+  darkHeader: {
+    backgroundColor: '#2d2d2d',
+  },
   greeting: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#333',
+  },
+  darkText: {
+    color: '#ffffff',
+  },
+  darkSubText: {
+    color: '#cccccc',
   },
   bell: {
     fontSize: 20,
@@ -189,11 +203,17 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 20,
   },
+  darkSummaryCard: {
+    backgroundColor: '#404040',
+  },
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 15,
+  },
+  darkCardTitle: {
+    color: '#ffffff',
   },
   summaryStats: {
     flexDirection: 'row',
@@ -207,15 +227,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
+  darkStatNumber: {
+    color: '#ffffff',
+  },
   statLabel: {
     fontSize: 12,
     color: '#fff',
-    opacity: 0.9,
-    marginTop: 4,
+    opacity: 0.8,
+  },
+  darkStatLabel: {
+    color: '#cccccc',
   },
   quickActions: {
     paddingHorizontal: 20,
     marginBottom: 20,
+  },
+  darkSection: {
+    backgroundColor: '#2d2d2d',
   },
   sectionTitle: {
     fontSize: 18,
@@ -234,6 +262,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '22%',
   },
+  darkActionCard: {
+    backgroundColor: '#404040',
+  },
   actionIcon: {
     fontSize: 24,
     marginBottom: 8,
@@ -251,6 +282,9 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 20,
   },
+  darkGoalsCard: {
+    backgroundColor: '#404040',
+  },
   goalItem: {
     marginBottom: 10,
   },
@@ -266,10 +300,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 15,
   },
+  darkEditGoalButton: {
+    backgroundColor: '#91C788',
+  },
   editGoalText: {
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
+  },
+  darkEditGoalText: {
+    color: '#ffffff',
   },
   goalStats: {
     flexDirection: 'row',
@@ -302,6 +342,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E0E0',
     borderRadius: 4,
     marginBottom: 8,
+  },
+  darkProgressBar: {
+    backgroundColor: '#555555',
   },
   progressFill: {
     height: '100%',
