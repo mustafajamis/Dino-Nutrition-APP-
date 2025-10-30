@@ -1,4 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
+import {signup } from '../../api/auth';
 import {
   View,
   Text,
@@ -70,13 +71,10 @@ const SignupScreen = ({navigation}) => {
 
     setLoading(true);
     try {
-      // Include name as username for now to maintain compatibility
-      const signupData = {
-        ...formData,
-        username: formData.name, // Use name as username
-      };
+      const signupData = { ...formData, username: formData.name };
       const result = await signup(signupData);
       if (result.success) {
+        await signup(formData.name.trim(), formData.email.trim(), formData.password);
         Alert.alert('Welcome to Dino! 🦕', 'Your account has been created successfully! Let\'s start your healthy journey.', [
           {text: 'Let\'s Go!', onPress: () => navigation.navigate('Main')},
         ]);
@@ -157,23 +155,31 @@ const SignupScreen = ({navigation}) => {
               </View>
 
               {/* Password */}
-              <Text style={styles.label}>Password</Text>
-              <View style={styles.inputWrapper}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Create a secure password"
-                  secureTextEntry={secureText}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  value={formData.password}
-                  onChangeText={(text) => handleInputChange('password', text)}
+              {/* Password */}
+                <Text style={styles.label}>Password</Text>
+                 <View style={styles.inputWrapper}>
+                  <TextInput
+                   style={styles.input}
+                   placeholder="Enter your password"
+                secureTextEntry={secureText}
+                   autoCapitalize="none"
+                     autoCorrect={false}
+                     textContentType="none"
+                     autoComplete="off"
+                   importantForAutofill="no"
+                     enablesReturnKeyAutomatically
+                 spellCheck={false}
+                   contextMenuHidden
+                    returnKeyType="done"
+                   value={formData.password}
+                   onChangeText={(text) => handleInputChange('password', text)}
                   accessibilityLabel="Password input field"
-                  accessibilityHint="Create a password with at least 6 characters"
-                />
-                <TouchableOpacity onPress={() => setSecureText(!secureText)}>
+                  accessibilityHint="Enter your account password"
+                 />
+                  <TouchableOpacity onPress={() => setSecureText(!secureText)}>
                   <Text style={styles.inputIcon}>👁️</Text>
-                </TouchableOpacity>
-              </View>
+                 </TouchableOpacity>
+                   </View>
 
               {/* Signup Button */}
               <TouchableOpacity
