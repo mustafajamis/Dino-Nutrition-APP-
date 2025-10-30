@@ -45,7 +45,22 @@ const ProfileScreen = () => {
       'Are you sure you want to logout?',
       [
         {text: 'Cancel', style: 'cancel'},
-        {text: 'Logout', onPress: logout, style: 'destructive'},
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+              // Reset navigation stack so user can't go back into authenticated screens
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Welcome' }],
+              });
+            } catch (e) {
+              console.error('Logout navigation error:', e);
+            }
+          },
+        },
       ]
     );
   };
@@ -112,12 +127,18 @@ const ProfileScreen = () => {
     return { labels, datasets: [{ data }] };
   };
 
+  const displayName =
+    user?.user_metadata?.display_name ||
+    user?.name ||
+    user?.username ||
+    (user?.email ? user.email.split('@')[0] : '');
+
   return (
     <SafeAreaView style={[styles.container, darkModeEnabled && styles.darkContainer]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header with Profile Info - No Image */}
         <View style={[styles.profileHeader, darkModeEnabled && styles.darkProfileHeader]}>
-          <Text style={[styles.userName, darkModeEnabled && styles.darkText]}>{user?.name || user?.username || 'User'}</Text>
+          <Text style={[styles.userName, darkModeEnabled && styles.darkText]}>{displayName || 'Profile'}</Text>
           <Text style={[styles.userEmail, darkModeEnabled && styles.darkSubText]}>{user?.email || 'user@example.com'}</Text>
           <Text style={[styles.joinDate, darkModeEnabled && styles.darkSubText]}>
             Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Recently'}
@@ -268,7 +289,7 @@ const ProfileScreen = () => {
           </View>
         </View>
 
-        {/* Support Section - Removed Privacy Policy and Terms of Service */}
+        {/* Support Section */}
         <View style={[styles.supportSection, darkModeEnabled && styles.darkSection]}>
           <TouchableOpacity style={[styles.supportItem, darkModeEnabled && styles.darkSupportItem]} onPress={() => {
             Alert.alert('Help & Support', 'For support, please contact us at support@dinoapp.com');
@@ -277,10 +298,7 @@ const ProfileScreen = () => {
             <Text style={[styles.supportText, darkModeEnabled && styles.darkText]}>Help & Support</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.supportItem, styles.logoutItem, darkModeEnabled && styles.darkSupportItem]} onPress={handleLogout}>
-            <Text style={styles.logoutIcon}>🚪</Text>
-            <Text style={styles.logoutText}>Sign Out</Text>
-          </TouchableOpacity>
+
         </View>
 
         <View style={[styles.versionInfo, darkModeEnabled && styles.darkVersionInfo]}>

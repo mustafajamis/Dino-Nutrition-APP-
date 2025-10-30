@@ -80,18 +80,35 @@ class DatabaseService {
       const users = await this.getAllUsers();
       const userIndex = users.findIndex(user => user.id === userId);
 
+      // If a local user record doesn't exist (e.g., Supabase-only auth), create a minimal one
       if (userIndex === -1) {
-        throw new Error('User not found');
+        const now = new Date().toISOString();
+        const newUser = {
+          id: userId,
+          username: '',
+          email: '',
+          password: '',
+          name: '',
+          age: '',
+          gender: '',
+          phone: '',
+          profilePicture: null,
+          dailyCalorieGoal: 2000,
+          createdAt: now,
+          updatedAt: now,
+        };
+        users.push(newUser);
       }
 
-      users[userIndex] = {
-        ...users[userIndex],
+      const idx = users.findIndex(u => u.id === userId);
+      users[idx] = {
+        ...users[idx],
         ...updateData,
         updatedAt: new Date().toISOString(),
       };
 
       await AsyncStorage.setItem('users', JSON.stringify(users));
-      return users[userIndex];
+      return users[idx];
     } catch (error) {
       console.error('Error updating user:', error);
       throw error;
@@ -125,15 +142,28 @@ class DatabaseService {
 
       // Add meal data
       if (activityData.type === 'meal') {
-        todayActivity.meals.push({
+        const meal = {
           id: this.generateId(),
-          name: activityData.name,
-          calories: activityData.calories,
-          foods: activityData.foods || [],
-          time: activityData.time || new Date().toLocaleTimeString(),
-          timestamp: new Date().toISOString(),
-        });
+            name: activityData.name,
+            calories: activityData.calories,
+            foods: activityData.foods || [],
+            time: activityData.time || new Date().toLocaleTimeString(),
+            timestamp: new Date().toISOString(),
+            carbs: activityData.carbs || 0,
+            protein: activityData.protein || 0,
+            fat: activityData.fat || 0,
+        };
+        todayActivity.meals.push(meal);
         todayActivity.totalCaloriesConsumed += activityData.calories;
+
+        // Initialize macro totals if not present
+        if (typeof todayActivity.totalCarbs !== 'number') todayActivity.totalCarbs = 0;
+        if (typeof todayActivity.totalProtein !== 'number') todayActivity.totalProtein = 0;
+        if (typeof todayActivity.totalFat !== 'number') todayActivity.totalFat = 0;
+
+        todayActivity.totalCarbs += meal.carbs;
+        todayActivity.totalProtein += meal.protein;
+        todayActivity.totalFat += meal.fat;
       }
 
       todayActivity.updatedAt = new Date().toISOString();

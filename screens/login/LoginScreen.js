@@ -23,11 +23,11 @@ const {width} = Dimensions.get('window');
 const LoginScreen = ({navigation}) => {
   const [secureText, setSecureText] = useState(true);
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
-  const {login} = useAuth();
+  const {login, resetPassword} = useAuth();
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -57,14 +57,14 @@ const LoginScreen = ({navigation}) => {
   };
 
   const handleLogin = async () => {
-    if (!formData.username.trim() || !formData.password.trim()) {
+    if (!formData.email.trim() || !formData.password.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     setLoading(true);
     try {
-      const result = await login(formData.username, formData.password);
+  const result = await login(formData.email, formData.password);
       if (result.success) {
         navigation.navigate('Main');
       } else {
@@ -74,6 +74,24 @@ const LoginScreen = ({navigation}) => {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const email = formData.email.trim();
+    if (!email) {
+      Alert.alert('Forgot Password', 'Enter your email above, then tap "Forgot password?"');
+      return;
+    }
+    try {
+      const res = await resetPassword(email);
+      if (res.success) {
+        Alert.alert('Check your email', 'We sent a password reset link to your inbox.');
+      } else {
+        Alert.alert('Reset failed', res.error || 'Could not send reset email');
+      }
+    } catch (e) {
+      Alert.alert('Reset failed', 'Something went wrong. Please try again.');
     }
   };
 
@@ -117,8 +135,8 @@ const LoginScreen = ({navigation}) => {
                   placeholder="your.email@example.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  value={formData.username}
-                  onChangeText={(text) => handleInputChange('username', text)}
+                  value={formData.email}
+                  onChangeText={(text) => handleInputChange('email', text)}
                   accessibilityLabel="Email input field"
                   accessibilityHint="Enter your email address"
                 />
@@ -132,6 +150,15 @@ const LoginScreen = ({navigation}) => {
                   style={styles.input}
                   placeholder="Enter your password"
                   secureTextEntry={secureText}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  textContentType="none"
+                  autoComplete="off"
+                  importantForAutofill="no"
+                  enablesReturnKeyAutomatically
+                  spellCheck={false}
+                  contextMenuHidden
+                  returnKeyType="done"
                   value={formData.password}
                   onChangeText={(text) => handleInputChange('password', text)}
                   accessibilityLabel="Password input field"
@@ -155,6 +182,13 @@ const LoginScreen = ({navigation}) => {
                   {loading ? 'Logging in...' : 'Login'}
                 </Text>
               </TouchableOpacity>
+
+              {/* Forgot Password */}
+              <View style={{ marginTop: 10, alignItems: 'center' }}>
+                <TouchableOpacity onPress={handleForgotPassword}>
+                  <Text style={[styles.link]}>Forgot password?</Text>
+                </TouchableOpacity>
+              </View>
 
               {/* Footer */}
               <View style={styles.footerContainer}>

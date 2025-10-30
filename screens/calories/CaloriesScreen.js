@@ -10,11 +10,13 @@ import {
   Alert,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
+import {useNavigation} from '@react-navigation/native';
 
 const {width} = Dimensions.get('window');
 
 const CaloriesScreen = () => {
   const {user, todayActivity, addMeal} = useAuth();
+  const navigation = useNavigation();
   const [dailyGoal, setDailyGoal] = useState(2000);
   const [consumed, setConsumed] = useState(0);
   const [meals, setMeals] = useState([]);
@@ -36,11 +38,12 @@ const CaloriesScreen = () => {
   const remaining = dailyGoal - consumed;
   const progressPercentage = Math.min((consumed / dailyGoal) * 100, 100);
 
+  // Add macro estimates (g) for quick adds. Values are approximate.
   const quickAddFoods = [
-    {name: 'Banana', calories: 95, icon: '🍌'},
-    {name: 'Apple', calories: 80, icon: '🍎'},
-    {name: 'Almonds', calories: 160, icon: '🥜'},
-    {name: 'Water', calories: 0, icon: '💧'},
+    {name: 'Banana', calories: 95, icon: '🍌', carbs: 24, protein: 1, fat: 0.3},
+    {name: 'Apple', calories: 80, icon: '🍎', carbs: 21, protein: 0.3, fat: 0.2},
+    {name: 'Almonds', calories: 160, icon: '🥜', carbs: 6, protein: 6, fat: 14},
+    {name: 'Water', calories: 0, icon: '💧', carbs: 0, protein: 0, fat: 0},
   ];
 
   const handleQuickAdd = async (food) => {
@@ -53,27 +56,21 @@ const CaloriesScreen = () => {
       name: `Quick Add - ${food.name}`,
       calories: food.calories,
       foods: [food.name],
+      carbs: food.carbs,
+      protein: food.protein,
+      fat: food.fat,
     });
 
     if (result.success) {
       Alert.alert('Success', `${food.name} added to your diary!`);
+      // Removed automatic navigation; stay on Calories screen
     } else {
       Alert.alert('Error', result.error);
     }
   };
 
   const handleAddMeal = () => {
-    Alert.alert(
-      'Add Meal',
-      'Choose meal type:',
-      [
-        {text: 'Breakfast', onPress: () => addMealDialog('Breakfast')},
-        {text: 'Lunch', onPress: () => addMealDialog('Lunch')},
-        {text: 'Dinner', onPress: () => addMealDialog('Dinner')},
-        {text: 'Snack', onPress: () => addMealDialog('Snack')},
-        {text: 'Cancel', style: 'cancel'},
-      ]
-    );
+    navigation.navigate('Scan', { source: 'calories_add_meal_button' });
   };
 
   const addMealDialog = (mealType) => {
@@ -95,10 +92,15 @@ const CaloriesScreen = () => {
                   name: mealType,
                   calories: calories,
                   foods: [foodName],
+                  // Manual quick prompt doesn't know macros; leave zeros or derive later
+                  carbs: 0,
+                  protein: 0,
+                  fat: 0,
                 });
 
                 if (result.success) {
                   Alert.alert('Success', 'Meal added successfully!');
+                  navigation.navigate('Scan', { source: 'calories_manual_add', mealType });
                 } else {
                   Alert.alert('Error', result.error);
                 }
@@ -110,6 +112,45 @@ const CaloriesScreen = () => {
         },
       ],
       'plain-text'
+    );
+  };
+
+  // Dynamic nutrition breakdown component
+  const NutritionBreakdown = ({ dailyGoal, todayActivity }) => {
+    // Derive totals from todayActivity (fallback 0)
+    const totalCarbs = todayActivity?.totalCarbs || 0; // grams
+    const totalProtein = todayActivity?.totalProtein || 0;
+    const totalFat = todayActivity?.totalFat || 0;
+
+    // Macro goals: simple default split (50% carbs, 20% protein, 30% fat)
+    // Calories per gram: Carbs 4, Protein 4, Fat 9
+    const carbGoal = Math.round((dailyGoal * 0.5) / 4);
+    const proteinGoal = Math.round((dailyGoal * 0.2) / 4);
+    const fatGoal = Math.round((dailyGoal * 0.3) / 9);
+
+    const pct = (value, goal) => Math.min(100, goal > 0 ? (value / goal) * 100 : 0);
+
+    const macroItems = [
+      { label: 'Carbs', value: totalCarbs, goal: carbGoal, color: '#FF6B6B' },
+      { label: 'Protein', value: totalProtein, goal: proteinGoal, color: '#4ECDC4' },
+      { label: 'Fat', value: totalFat, goal: fatGoal, color: '#45B7D1' },
+    ];
+
+    return (
+      <View style={styles.nutritionSection}>
+        <Text style={styles.sectionTitle}>Nutrition Breakdown</Text>
+        <View style={styles.nutritionGrid}>
+          {macroItems.map(item => (
+            <View key={item.label} style={styles.nutritionItem}>
+              <Text style={styles.nutritionLabel}>{item.label}</Text>
+              <Text style={styles.nutritionValue}>{item.value}g / {item.goal}g</Text>
+              <View style={styles.nutritionBar}>
+                <View style={[styles.nutritionProgress, { width: `${pct(item.value, item.goal)}%`, backgroundColor: item.color }]} />
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
     );
   };
 
@@ -125,9 +166,7 @@ const CaloriesScreen = () => {
         {/* Calorie Summary Card */}
         <View style={styles.summaryCard}>
           <View style={styles.calorieCircle}>
-            <View style={[styles.progressRing, {transform: [{rotate: `${progressPercentage * 3.6}deg`}]}]}>
-              <View style={styles.progressBar} />
-            </View>
+            {/* Removed progressRing/progressBar overlay to eliminate white circle obstruction */}
             <View style={styles.calorieContent}>
               <Text style={styles.remainingCalories}>{remaining}</Text>
               <Text style={styles.remainingLabel}>Remaining</Text>
@@ -205,33 +244,11 @@ const CaloriesScreen = () => {
           )}
         </View>
 
-        {/* Nutrition Summary */}
-        <View style={styles.nutritionSection}>
-          <Text style={styles.sectionTitle}>Nutrition Breakdown</Text>
-          <View style={styles.nutritionGrid}>
-            <View style={styles.nutritionItem}>
-              <Text style={styles.nutritionLabel}>Carbs</Text>
-              <Text style={styles.nutritionValue}>180g</Text>
-              <View style={styles.nutritionBar}>
-                <View style={[styles.nutritionProgress, styles.carbsProgress]} />
-              </View>
-            </View>
-            <View style={styles.nutritionItem}>
-              <Text style={styles.nutritionLabel}>Protein</Text>
-              <Text style={styles.nutritionValue}>95g</Text>
-              <View style={styles.nutritionBar}>
-                <View style={[styles.nutritionProgress, styles.proteinProgress]} />
-              </View>
-            </View>
-            <View style={styles.nutritionItem}>
-              <Text style={styles.nutritionLabel}>Fat</Text>
-              <Text style={styles.nutritionValue}>62g</Text>
-              <View style={styles.nutritionBar}>
-                <View style={[styles.nutritionProgress, styles.fatProgress]} />
-              </View>
-            </View>
-          </View>
-        </View>
+        {/* Nutrition Summary (dynamic) */}
+        <NutritionBreakdown
+          dailyGoal={dailyGoal}
+          todayActivity={todayActivity}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -272,21 +289,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     position: 'relative',
-  },
-  progressRing: {
-    position: 'absolute',
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 8,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  progressBar: {
-    width: '100%',
-    height: '50%',
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 60,
-    borderTopRightRadius: 60,
   },
   calorieContent: {
     alignItems: 'center',
