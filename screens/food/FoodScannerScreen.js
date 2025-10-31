@@ -17,6 +17,9 @@ const FoodScannerScreen = () => {
   const [foodName, setFoodName] = useState('');
   const [calories, setCalories] = useState('');
   const [scanning, setScanning] = useState(false);
+  const [carbs, setCarbs] = useState('');
+  const [protein, setProtein] = useState('');
+  const [fat, setFat] = useState('');
 
   const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
@@ -46,6 +49,9 @@ const FoodScannerScreen = () => {
       name: selectedMealType,
       calories: parseInt(calories, 10),
       foods: [foodName],
+      carbs: parseFloat(carbs) || 0,
+      protein: parseFloat(protein) || 0,
+      fat: parseFloat(fat) || 0,
     });
 
     if (result.success) {
@@ -54,6 +60,9 @@ const FoodScannerScreen = () => {
       setFoodName('');
       setCalories('');
       setSelectedMealType('');
+      setCarbs('');
+      setProtein('');
+      setFat('');
     } else {
       Alert.alert('Error', result.error);
     }
@@ -110,6 +119,39 @@ const FoodScannerScreen = () => {
             />
           </View>
 
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Carbs (g)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., 25"
+              value={carbs}
+              onChangeText={setCarbs}
+              keyboardType="numeric"
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Protein (g)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., 30"
+              value={protein}
+              onChangeText={setProtein}
+              keyboardType="numeric"
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Fat (g)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., 12"
+              value={fat}
+              onChangeText={setFat}
+              keyboardType="numeric"
+            />
+          </View>
+
+          <MacroSummary carbs={carbs} protein={protein} fat={fat} />
+
           {/* Meal Type Selection */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Select Meal Type</Text>
@@ -140,6 +182,20 @@ const FoodScannerScreen = () => {
         </View>
       </ScrollView>
     </SafeAreaView>
+  );
+};
+
+const MacroSummary = ({ carbs, protein, fat }) => {
+  const c = parseFloat(carbs) || 0;
+  const p = parseFloat(protein) || 0;
+  const f = parseFloat(fat) || 0;
+  const caloriesEstimate = c * 4 + p * 4 + f * 9;
+  return (
+    <View style={{ marginBottom: 10, backgroundColor: '#F0F6F0', padding: 12, borderRadius: 10 }}>
+      <Text style={{ fontWeight: '600', color: '#333', marginBottom: 4 }}>Macro Summary</Text>
+      <Text style={{ color: '#333' }}>Carbs: {c}g · Protein: {p}g · Fat: {f}g</Text>
+      <Text style={{ color: '#666', marginTop: 2 }}>Estimated macro calories: {caloriesEstimate} kcal</Text>
+    </View>
   );
 };
 

@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
 import {useNavigation} from '@react-navigation/native';
-import {testDatabaseFunctionality} from '../../utils/testUtils';
 
 const HomeScreen = () => {
   const {user, todayActivity, setDailyGoal} = useAuth();
@@ -46,33 +45,20 @@ const HomeScreen = () => {
     );
   };
 
-  const runDatabaseTest = async () => {
-    Alert.alert(
-      'Database Test',
-      'This will run a test of the database functionality. Continue?',
-      [
-        {text: 'Cancel', style: 'cancel'},
-        {
-          text: 'Run Test',
-          onPress: async () => {
-            const result = await testDatabaseFunctionality();
-            Alert.alert(
-              'Test Result',
-              result ? 'All tests passed! ✅' : 'Some tests failed! ❌',
-              [{text: 'OK'}]
-            );
-          },
-        },
-      ]
-    );
-  };
+
+  // Derive a friendly display name
+  const displayName =
+    user?.user_metadata?.display_name ||
+    user?.name ||
+    user?.username ||
+    (user?.email ? user.email.split('@')[0] : '');
 
   return (
     <SafeAreaView style={[styles.container, darkModeEnabled && styles.darkContainer]}>
       <ScrollView>
         {/* Header Section */}
         <View style={[styles.header, darkModeEnabled && styles.darkHeader]}>
-          <Text style={[styles.greeting, darkModeEnabled && styles.darkText]}>Hi, {user?.name || user?.username || 'User'}</Text>
+          <Text style={[styles.greeting, darkModeEnabled && styles.darkText]}>Hi{displayName ? ', ' + displayName : ''}</Text>
 
           <TouchableOpacity onPress={() => setIsSilent(!isSilent)}>
             <Text style={styles.bell}>{isSilent ? '🔕' : '🔔'}</Text>
@@ -101,22 +87,18 @@ const HomeScreen = () => {
         {/* Quick Actions */}
         <View style={[styles.quickActions, darkModeEnabled && styles.darkSection]}>
           <Text style={[styles.sectionTitle, darkModeEnabled && styles.darkText]}>Quick Actions</Text>
-          <View style={styles.actionsGrid}>
-            <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={() => navigation.navigate('Calories')}>
+          <View style={styles.actionsRow}>
+              <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={() => navigation.navigate('Calories')}>
               <Text style={styles.actionIcon}>🍽️</Text>
               <Text style={[styles.actionText, darkModeEnabled && styles.darkText]}>Log Meal</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={() => navigation.navigate('Scan')}>
+              <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={() => navigation.navigate('Scan')}>
               <Text style={styles.actionIcon}>📸</Text>
               <Text style={[styles.actionText, darkModeEnabled && styles.darkText]}>Scan Food</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={handleSetGoal}>
+              <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={handleSetGoal}>
               <Text style={styles.actionIcon}>🎯</Text>
               <Text style={[styles.actionText, darkModeEnabled && styles.darkText]}>Set Goal</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionCard, darkModeEnabled && styles.darkActionCard]} onPress={runDatabaseTest}>
-              <Text style={styles.actionIcon}>🧪</Text>
-              <Text style={[styles.actionText, darkModeEnabled && styles.darkText]}>Test DB</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -251,16 +233,25 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     color: '#333',
   },
-  actionsGrid: {
+  actionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 14,
   },
   actionCard: {
     backgroundColor: '#F8F8F8',
-    borderRadius: 12,
-    padding: 15,
+    borderRadius: 14,
+    paddingVertical: 18,
+    paddingHorizontal: 10,
     alignItems: 'center',
-    width: '22%',
+    flex: 1,
+    // Min width safeguard for very small screens
+    minWidth: 90,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   darkActionCard: {
     backgroundColor: '#404040',
