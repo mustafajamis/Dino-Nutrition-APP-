@@ -29,7 +29,7 @@
 
 ✅ **Simple Calorie Tracking** – Easily log your meals and track daily calorie intake  
 ✅ **Quick Add Foods** – Instantly add common foods with pre-set calorie counts  
-✅ **Food Scanner** – Take pictures of your food for easy logging  
+✅ **AI-Powered Food Scanner** – Take pictures of your food and get instant nutritional information using Calorie Mama API  
 ✅ **Daily Goals** – Set and track your daily calorie targets  
 ✅ **Meal History** – View your eating history and patterns  
 ✅ **Clean & Simple UI** – Fun emojis and intuitive design make tracking enjoyable  
@@ -151,6 +151,8 @@ Dino-Nutrition-APP/
 ├── package.json
 └── README.md
 ```
+
+For more details on the Calorie Mama Food Recognition API integration, see [CALORIE_MAMA_API_INTEGRATION.md](CALORIE_MAMA_API_INTEGRATION.md).
 
 ---
 
