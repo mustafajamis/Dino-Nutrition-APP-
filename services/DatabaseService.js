@@ -11,6 +11,22 @@ class DatabaseService {
     DatabaseService.instance = this;
   }
 
+  // Helper method to handle AsyncStorage operations with retry logic
+  async safeAsyncStorageOperation(operation, retries = 3) {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await operation();
+      } catch (error) {
+        if (error.message?.includes("doesn't exist") && i < retries - 1) {
+          // Wait a bit and retry - iOS simulator sometimes needs time to create directories
+          await new Promise(resolve => setTimeout(resolve, 100 * (i + 1)));
+          continue;
+        }
+        throw error;
+      }
+    }
+  }
+
   // Generate unique IDs
   generateId() {
     return Date.now().toString() + Math.random().toString(36).substr(2, 9);
@@ -20,8 +36,9 @@ class DatabaseService {
   async createUser(userData) {
     try {
       const users = await this.getAllUsers();
-      const existingUser = users.find(user =>
-        user.username === userData.username || user.email === userData.email
+      const existingUser = users.find(
+        user =>
+          user.username === userData.username || user.email === userData.email,
       );
 
       if (existingUser) {
@@ -44,7 +61,9 @@ class DatabaseService {
       };
 
       users.push(newUser);
-      await AsyncStorage.setItem('users', JSON.stringify(users));
+      await this.safeAsyncStorageOperation(() =>
+        AsyncStorage.setItem('users', JSON.stringify(users)),
+      );
       return newUser;
     } catch (error) {
       console.error('Error creating user:', error);
@@ -54,8 +73,10 @@ class DatabaseService {
 
   async getAllUsers() {
     try {
-      const usersJson = await AsyncStorage.getItem('users');
-      return usersJson ? JSON.parse(usersJson) : [];
+      return await this.safeAsyncStorageOperation(async () => {
+        const usersJson = await AsyncStorage.getItem('users');
+        return usersJson ? JSON.parse(usersJson) : [];
+      });
     } catch (error) {
       console.error('Error getting users:', error);
       return [];
@@ -65,9 +86,10 @@ class DatabaseService {
   async getUserByCredentials(username, password) {
     try {
       const users = await this.getAllUsers();
-      return users.find(user =>
-        (user.username === username || user.email === username) &&
-        user.password === password
+      return users.find(
+        user =>
+          (user.username === username || user.email === username) &&
+          user.password === password,
       );
     } catch (error) {
       console.error('Error authenticating user:', error);
@@ -107,7 +129,9 @@ class DatabaseService {
         updatedAt: new Date().toISOString(),
       };
 
-      await AsyncStorage.setItem('users', JSON.stringify(users));
+      await this.safeAsyncStorageOperation(() =>
+        AsyncStorage.setItem('users', JSON.stringify(users)),
+      );
       return users[idx];
     } catch (error) {
       console.error('Error updating user:', error);
@@ -122,9 +146,7 @@ class DatabaseService {
       const today = new Date().toISOString().split('T')[0];
 
       // Find today's activity or create new one
-      let todayActivity = activities.find(activity =>
-        activity.date === today
-      );
+      let todayActivity = activities.find(activity => activity.date === today);
 
       if (!todayActivity) {
         todayActivity = {
@@ -144,22 +166,28 @@ class DatabaseService {
       if (activityData.type === 'meal') {
         const meal = {
           id: this.generateId(),
-            name: activityData.name,
-            calories: activityData.calories,
-            foods: activityData.foods || [],
-            time: activityData.time || new Date().toLocaleTimeString(),
-            timestamp: new Date().toISOString(),
-            carbs: activityData.carbs || 0,
-            protein: activityData.protein || 0,
-            fat: activityData.fat || 0,
+          name: activityData.name,
+          calories: activityData.calories,
+          foods: activityData.foods || [],
+          time: activityData.time || new Date().toLocaleTimeString(),
+          timestamp: new Date().toISOString(),
+          carbs: activityData.carbs || 0,
+          protein: activityData.protein || 0,
+          fat: activityData.fat || 0,
         };
         todayActivity.meals.push(meal);
         todayActivity.totalCaloriesConsumed += activityData.calories;
 
         // Initialize macro totals if not present
-        if (typeof todayActivity.totalCarbs !== 'number') todayActivity.totalCarbs = 0;
-        if (typeof todayActivity.totalProtein !== 'number') todayActivity.totalProtein = 0;
-        if (typeof todayActivity.totalFat !== 'number') todayActivity.totalFat = 0;
+        if (typeof todayActivity.totalCarbs !== 'number') {
+          todayActivity.totalCarbs = 0;
+        }
+        if (typeof todayActivity.totalProtein !== 'number') {
+          todayActivity.totalProtein = 0;
+        }
+        if (typeof todayActivity.totalFat !== 'number') {
+          todayActivity.totalFat = 0;
+        }
 
         todayActivity.totalCarbs += meal.carbs;
         todayActivity.totalProtein += meal.protein;
@@ -169,7 +197,9 @@ class DatabaseService {
       todayActivity.updatedAt = new Date().toISOString();
 
       const key = `activities_${userId}`;
-      await AsyncStorage.setItem(key, JSON.stringify(activities));
+      await this.safeAsyncStorageOperation(() =>
+        AsyncStorage.setItem(key, JSON.stringify(activities)),
+      );
       return todayActivity;
     } catch (error) {
       console.error('Error adding daily activity:', error);
@@ -180,13 +210,15 @@ class DatabaseService {
   async getUserActivities(userId, limit = 30) {
     try {
       const key = `activities_${userId}`;
-      const activitiesJson = await AsyncStorage.getItem(key);
-      const activities = activitiesJson ? JSON.parse(activitiesJson) : [];
+      return await this.safeAsyncStorageOperation(async () => {
+        const activitiesJson = await AsyncStorage.getItem(key);
+        const activities = activitiesJson ? JSON.parse(activitiesJson) : [];
 
-      // Sort by date descending and limit results
-      return activities
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, limit);
+        // Sort by date descending and limit results
+        return activities
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, limit);
+      });
     } catch (error) {
       console.error('Error getting user activities:', error);
       return [];
@@ -198,16 +230,18 @@ class DatabaseService {
       const today = new Date().toISOString().split('T')[0];
       const activities = await this.getUserActivities(userId);
 
-      return activities.find(activity => activity.date === today) || {
-        id: this.generateId(),
-        userId: userId,
-        date: today,
-        meals: [],
-        totalCaloriesConsumed: 0,
-        waterIntake: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      return (
+        activities.find(activity => activity.date === today) || {
+          id: this.generateId(),
+          userId: userId,
+          date: today,
+          meals: [],
+          totalCaloriesConsumed: 0,
+          waterIntake: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+      );
     } catch (error) {
       console.error('Error getting today activity:', error);
       return null;
@@ -226,11 +260,13 @@ class DatabaseService {
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
 
-        const dayActivity = activities.find(activity => activity.date === dateStr);
+        const dayActivity = activities.find(
+          activity => activity.date === dateStr,
+        );
 
         weeklyData.push({
           date: dateStr,
-          day: date.toLocaleDateString('en-US', { weekday: 'short' }),
+          day: date.toLocaleDateString('en-US', {weekday: 'short'}),
           calories: dayActivity ? dayActivity.totalCaloriesConsumed : 0,
         });
       }
@@ -258,8 +294,10 @@ class DatabaseService {
         }
       });
 
-      monthlyData.averageDaily = monthlyData.activeDays > 0 ?
-        Math.round(monthlyData.totalCalories / monthlyData.activeDays) : 0;
+      monthlyData.averageDaily =
+        monthlyData.activeDays > 0
+          ? Math.round(monthlyData.totalCalories / monthlyData.activeDays)
+          : 0;
 
       return monthlyData;
     } catch (error) {
@@ -275,7 +313,9 @@ class DatabaseService {
   // Session Management
   async setCurrentUser(user) {
     try {
-      await AsyncStorage.setItem('currentUser', JSON.stringify(user));
+      await this.safeAsyncStorageOperation(() =>
+        AsyncStorage.setItem('currentUser', JSON.stringify(user)),
+      );
     } catch (error) {
       console.error('Error setting current user:', error);
     }
@@ -283,8 +323,10 @@ class DatabaseService {
 
   async getCurrentUser() {
     try {
-      const userJson = await AsyncStorage.getItem('currentUser');
-      return userJson ? JSON.parse(userJson) : null;
+      return await this.safeAsyncStorageOperation(async () => {
+        const userJson = await AsyncStorage.getItem('currentUser');
+        return userJson ? JSON.parse(userJson) : null;
+      });
     } catch (error) {
       console.error('Error getting current user:', error);
       return null;
@@ -293,7 +335,9 @@ class DatabaseService {
 
   async logout() {
     try {
-      await AsyncStorage.removeItem('currentUser');
+      await this.safeAsyncStorageOperation(() =>
+        AsyncStorage.removeItem('currentUser'),
+      );
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -302,11 +346,13 @@ class DatabaseService {
   // Clear all data (for testing purposes)
   async clearAllData() {
     try {
-      await AsyncStorage.multiRemove(['users', 'currentUser']);
-      // Also clear activity data for all users
-      const keys = await AsyncStorage.getAllKeys();
-      const activityKeys = keys.filter(key => key.startsWith('activities_'));
-      await AsyncStorage.multiRemove(activityKeys);
+      await this.safeAsyncStorageOperation(async () => {
+        await AsyncStorage.multiRemove(['users', 'currentUser']);
+        // Also clear activity data for all users
+        const keys = await AsyncStorage.getAllKeys();
+        const activityKeys = keys.filter(key => key.startsWith('activities_'));
+        await AsyncStorage.multiRemove(activityKeys);
+      });
     } catch (error) {
       console.error('Error clearing data:', error);
     }

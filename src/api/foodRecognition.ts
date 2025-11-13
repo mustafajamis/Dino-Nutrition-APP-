@@ -1,5 +1,5 @@
 // src/api/foodRecognition.ts
-import { CALORIE_MAMA_API_KEY, CALORIE_MAMA_API_URL } from '../config';
+import { CALORIE_MAMA_API_KEY_CONFIG, CALORIE_MAMA_API_URL_CONFIG } from '../config';
 
 export interface NutritionData {
   calories?: number;
@@ -123,8 +123,8 @@ export async function recognizeFood(
 ): Promise<FoodRecognitionResponse> {
   try {
     const endpoint = fullNutrition
-      ? `${CALORIE_MAMA_API_URL}/full`
-      : CALORIE_MAMA_API_URL;
+      ? `${CALORIE_MAMA_API_URL_CONFIG}/full`
+      : CALORIE_MAMA_API_URL_CONFIG;
 
     // Create form data
     const formData = new FormData();
@@ -138,7 +138,7 @@ export async function recognizeFood(
 
     formData.append('media', imageData);
 
-    const response = await fetch(`${endpoint}?user_key=${CALORIE_MAMA_API_KEY}`, {
+    const response = await fetch(`${endpoint}?user_key=${CALORIE_MAMA_API_KEY_CONFIG}`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
