@@ -7,7 +7,8 @@
     "android": "npx react-native@0.77.0 run-android",
     "ios": "npx react-native@0.77.0 run-ios",
     "lint": "eslint .",
-    "test": "jest"
+    "test": "jest",
+    "setup": "node setup.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",

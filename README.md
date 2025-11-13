@@ -1,247 +1,100 @@
-# 🚀 Dino – Your Personal Nutrition Assistant  
+# 🦕 Dino - Simple Nutrition Tracker
 
-**Dino** is a simple and fun mobile application designed to help you **track your daily calorie intake** effortlessly. With features like **easy meal logging**, **calorie tracking**, and **food scanning**, Dino makes staying on top of your nutrition goals simple and enjoyable.
+A fun and easy-to-use mobile app for tracking your daily calories. Take photos of food, scan for nutrition info, and reach your daily goals!
 
----
+## ✨ What It Does
 
-## 📋 Table of Contents  
+- 📸 **Scan Food** - Take photos and get instant nutrition info
+- 🍎 **Track Calories** - Log meals and monitor daily intake
+- 🎯 **Set Goals** - Create and track your calorie targets
+- 📊 **See Progress** - View your daily nutrition summary
 
-- [✨ Features](#-features)  
-- [🚀 Getting Started](#-getting-started)  
-  - [Prerequisites](#prerequisites)  
-  - [Installation](#installation)  
-  - [Running the App](#running-the-app)  
-- [🏗 Technical Architecture](#-technical-architecture)  
-  - [Core Technologies](#core-technologies)  
-  - [Project Structure](#project-structure)  
-- [🤝 Contributing](#-contributing)  
-  - [Coding Standards](#coding-standards)  
-- [👥 Contributors](#-contributors)  
-- [❓ Troubleshooting](#-troubleshooting)  
-  - [Common Issues](#common-issues)  
-  - [Getting Help](#getting-help)  
-- [📄 License](#-license)  
-- [🎉 Acknowledgments](#-acknowledgments)  
+## 🚀 Quick Start
 
----
+### For New Team Members
 
-## ✨ Features  
-
-✅ **Simple Calorie Tracking** – Easily log your meals and track daily calorie intake  
-✅ **Quick Add Foods** – Instantly add common foods with pre-set calorie counts  
-✅ **AI-Powered Food Scanner** – Take pictures of your food and get instant nutritional information using Calorie Mama API  
-✅ **Daily Goals** – Set and track your daily calorie targets  
-✅ **Meal History** – View your eating history and patterns  
-✅ **Clean & Simple UI** – Fun emojis and intuitive design make tracking enjoyable  
-
----
-
-## 🚀 Getting Started  
-
-### Prerequisites  
-
-Before you begin, ensure you have the following installed:  
-
-- **Node.js** (v16 or higher)  
-- **Yarn** (or npm) package manager  
-- **React Native CLI**  
-- **Xcode** (Mac only, for iOS development)  
-- **Android Studio** (for Android development)  
-- **Git** (for version control)  
-
----
-
-### Installation  
-
-Clone the repository:  
-```sh
+```bash
+# 1. Clone the project
 git clone https://github.com/mustafajamis/Dino-Nutrition-APP-.git
-```
+cd Dino-Nutrition-APP-
 
-Navigate to the project directory:  
-```sh
-cd Dino-Nutrition-APP
-```
+# 2. Run the setup script
+npm run setup
 
-Install dependencies:  
-```sh
+# 3. Add your API keys to the .env file that was created
+# (See API Setup section below)
+
+# 4. Install dependencies
 npm install --legacy-peer-deps
-```
 
-For iOS (Mac only):  
-```sh
+# 5. For iOS only
 cd ios && pod install && cd ..
+
+# 6. Run the app
+npm run ios      # iOS
+npm run android  # Android
 ```
 
----
+## 🔑 API Setup
 
-### Running the App  
+After running `npm run setup`, you'll need to add these API keys to your `.env` file:
 
-#### For Android:  
-```sh
-npx react-native run-android
+### 1. Supabase (User accounts & database)
+
+1. Go to [supabase.com/dashboard](https://supabase.com/dashboard)
+2. Create a new project (or ask team for access)
+3. Go to Settings → API
+4. Copy the URL and anon key to your `.env` file
+
+### 2. Calorie Mama (Food recognition)
+
+1. Visit [dev.caloriemama.ai](https://dev.caloriemama.ai/)
+2. Sign up for an API key
+3. Add it to your `.env` file
+
+**Example .env file:**
+
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key-here
+CALORIE_MAMA_API_KEY=your-api-key-here
+CALORIE_MAMA_API_URL=https://api-2445582032290.production.gw.apicast.io/v1/foodrecognition
 ```
 
-#### For iOS:  
-```sh
-npx react-native run-ios
-```
+## 🏗️ How It's Built
 
-#### For Development:  
-```sh
-npx react-native start
-```
+- **React Native** - Cross-platform mobile app
+- **Supabase** - User accounts and data storage
+- **Calorie Mama API** - Food recognition from photos
+- **AsyncStorage** - Local data backup
 
----
-
-## 🏗 Technical Architecture  
-
-### Core Technologies  
-
-- **React Native** – Cross-platform mobile development  
-- **AsyncStorage** – Local data storage  
-- **React Navigation** – App navigation and routing  
-- **Context API** – State management for user data and authentication  
-
----
-
-### Project Structure  
+## 📱 App Structure
 
 ```
-Dino-Nutrition-APP/
-│
-├── assets/                 # All static assets
-│   ├── images/             # App images
-│   ├── fonts/              # Custom fonts
-│   └── icons/              # SVGs or icon sets (optional)
-│
-├── components/             # Reusable UI components (buttons, cards, etc.)
-│   ├── Button/
-│   ├── Header/
-│   └── FoodCard/
-│
-├── constants/              # App-wide constants (colors, strings, etc.)
-│   ├── colors.js
-│   ├── images.js
-│   └── fonts.js
-│
-├── navigation/             # React Navigation setup
-│   ├── AppNavigator.js
-│   └── TabNavigator.js
-│
-├── screens/                # One folder per screen
-│   ├── Welcome/
-│   ├── Onboarding/
-│   ├── Login/
-│   ├── Home/
-│   ├── Food/               # Food scanner
-│   ├── Calories/           # Calorie tracking
-│   └── Profile/
-│
-├── context/                # Context API setup (auth, theme, etc.)
-│   └── AuthContext.js
-│
-├── services/               # API services or async functions
-│   └── foodRecognitionAPI.js
-│
-├── utils/                  # Helper functions
-│   └── formatCalories.js
-│
-├── App.js
-├── package.json
-└── README.md
+📦 Main Screens
+├── 🏠 Home - Daily summary and quick actions
+├── 🍽️ Calories - Track meals and view progress
+├── 📸 Food Scanner - Take photos to scan food
+└── 👤 Profile - Settings and user info
 ```
 
-For more details on the Calorie Mama Food Recognition API integration, see [CALORIE_MAMA_API_INTEGRATION.md](CALORIE_MAMA_API_INTEGRATION.md).
+## 🤝 Contributing
 
----
+1. Fork the repo
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-## 🤝 Contributing  
-
-We welcome contributions! Here's how you can contribute:  
-
-1. **Fork the repository**  
-2. **Create a feature branch**:  
-   ```sh
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit your changes**:  
-   ```sh
-   git commit -m "Add amazing feature"
-   ```
-4. **Push to your branch**:  
-   ```sh
-   git push origin feature/amazing-feature
-   ```
-5. **Open a Pull Request**  
-
----
-
-### Coding Standards  
-
-- Follow the **React Native & TypeScript (if applicable) style guide**  
-- Write **clear and meaningful commit messages**  
-- Include **tests for new features**  
-- Update documentation when necessary  
-
----
-
-## 👥 Contributors  
-
-Thank you to all our amazing contributors who have helped make Dino possible!
-
-### Core Team
+## 👥 Team
 
 - [Minh-Tri Bui]
 - [Mustafa Jamshidi](https://github.com/mustafajamis)
 - [Kyle Liu]
 
----
+## 📄 License
 
-## ❓ Troubleshooting  
-
-### Common Issues  
-
-#### **Build Failures**  
-
-- Clear the cache and reinstall dependencies:  
-  ```sh
-  yarn clean && yarn install
-  ```
-
-#### **iOS Issues**  
-
-- Reset iOS dependencies:  
-  ```sh
-  cd ios && pod deintegrate && pod install
-  ```
-
-#### **Android Issues**  
-
-- Clear Gradle cache:  
-  ```sh
-  cd android && ./gradlew clean
-  ```
+MIT License - see LICENSE file
 
 ---
 
-### Getting Help  
-
-- Open an **issue** for bugs  
-- Join **discussions** for questions  
-- Submit **pull requests** for contributions  
-
----
-
-## 📄 License  
-
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.  
-
----
-
-## 🎉 Acknowledgments  
-
-💡 Thanks to all contributors!  
-🚀 Built with **React Native** for simple, cross-platform calorie tracking  
-📢 Inspired by the idea of making **healthy eating simple and fun**  
-
+**Made with ❤️ to make healthy eating simple and fun!**
