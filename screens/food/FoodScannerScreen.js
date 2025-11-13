@@ -8,8 +8,11 @@ import {
   Alert,
   TextInput,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {useAuth} from '../../context/AuthContext';
+import {recognizeFood, getTopFoodItem} from '../../src/api/foodRecognition';
 
 const FoodScannerScreen = () => {
   const {addMeal} = useAuth();
@@ -23,16 +26,117 @@ const FoodScannerScreen = () => {
 
   const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
-  const simulateScanning = () => {
-    setScanning(true);
-    // Simulate a scanning process
-    setTimeout(() => {
+  const handleImagePicked = async (imageUri) => {
+    try {
+      setScanning(true);
+
+      // Call the Calorie Mama API
+      const response = await recognizeFood(imageUri, true);
+
+      // Get the top recognized food item
+      const topItem = getTopFoodItem(response);
+
+      if (topItem) {
+        // Extract nutrition data (already converted to grams in the API service)
+        const caloriesValue = topItem.nutrition.calories
+          ? Math.round(topItem.nutrition.calories / 10) // Convert from per kg to per 100g
+          : 0;
+
+        const carbsValue = topItem.nutrition.totalCarbs
+          ? Math.round(topItem.nutrition.totalCarbs * 10) / 10 // Already in grams per kg, divide by 10 for per 100g
+          : 0;
+
+        const proteinValue = topItem.nutrition.protein
+          ? Math.round(topItem.nutrition.protein * 10) / 10
+          : 0;
+
+        const fatValue = topItem.nutrition.totalFat
+          ? Math.round(topItem.nutrition.totalFat * 10) / 10
+          : 0;
+
+        setFoodName(topItem.name);
+        setCalories(caloriesValue.toString());
+        setCarbs(carbsValue.toString());
+        setProtein(proteinValue.toString());
+        setFat(fatValue.toString());
+
+        Alert.alert(
+          'Food Detected!',
+          `${topItem.name} - ${caloriesValue} calories detected. Please verify and select meal type.`,
+          [{text: 'OK'}]
+        );
+      } else {
+        Alert.alert(
+          'No Food Detected',
+          'Could not recognize any food in the image. Please try again or enter manually.'
+        );
+      }
+    } catch (error) {
+      console.error('Food recognition error:', error);
+      Alert.alert(
+        'Recognition Failed',
+        error.message || 'Failed to recognize food. Please try again or enter manually.'
+      );
+    } finally {
       setScanning(false);
-      // Simulate detecting food
-      setFoodName('Chicken Salad');
-      setCalories('350');
-      Alert.alert('Food Detected!', 'Chicken Salad - 350 calories detected. Please verify and select meal type.');
-    }, 2000);
+    }
+  };
+
+  const selectImage = () => {
+    Alert.alert(
+      'Select Image',
+      'Choose an option',
+      [
+        {
+          text: 'Take Photo',
+          onPress: () => {
+            launchCamera(
+              {
+                mediaType: 'photo',
+                quality: 0.8,
+                maxWidth: 544,
+                maxHeight: 544,
+              },
+              (response) => {
+                if (response.didCancel) {
+                  console.log('User cancelled camera');
+                } else if (response.errorCode) {
+                  Alert.alert('Error', response.errorMessage);
+                } else if (response.assets && response.assets[0]) {
+                  handleImagePicked(response.assets[0].uri);
+                }
+              }
+            );
+          },
+        },
+        {
+          text: 'Choose from Library',
+          onPress: () => {
+            launchImageLibrary(
+              {
+                mediaType: 'photo',
+                quality: 0.8,
+                maxWidth: 544,
+                maxHeight: 544,
+              },
+              (response) => {
+                if (response.didCancel) {
+                  console.log('User cancelled image picker');
+                } else if (response.errorCode) {
+                  Alert.alert('Error', response.errorMessage);
+                } else if (response.assets && response.assets[0]) {
+                  handleImagePicked(response.assets[0].uri);
+                }
+              }
+            );
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ]
+    );
   };
 
   const handleAddMeal = async () => {
@@ -79,17 +183,23 @@ const FoodScannerScreen = () => {
         {/* Scanner Section */}
         <View style={styles.scannerSection}>
           <View style={styles.scannerFrame}>
-            <Text style={styles.scannerIcon}>📸</Text>
-            <Text style={styles.scannerText}>
-              {scanning ? 'Scanning...' : 'Tap to scan food'}
-            </Text>
+            {scanning ? (
+              <ActivityIndicator size="large" color="#91C788" />
+            ) : (
+              <>
+                <Text style={styles.scannerIcon}>📸</Text>
+                <Text style={styles.scannerText}>
+                  Tap to scan food
+                </Text>
+              </>
+            )}
           </View>
           <TouchableOpacity
             style={[styles.scanButton, scanning && styles.scanButtonDisabled]}
-            onPress={simulateScanning}
+            onPress={selectImage}
             disabled={scanning}>
             <Text style={styles.scanButtonText}>
-              {scanning ? 'Scanning...' : 'Start Scan'}
+              {scanning ? 'Recognizing Food...' : 'Scan Food with Camera'}
             </Text>
           </TouchableOpacity>
         </View>
