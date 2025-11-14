@@ -36,7 +36,7 @@ const CaloriesScreen = () => {
     }
   }, [todayActivity]);
 
-  const remaining = dailyGoal - consumed;
+  const remaining = Math.max(0, dailyGoal - consumed);
 
   // Add macro estimates for quick adds
   const quickAddFoods = [
@@ -80,15 +80,15 @@ const CaloriesScreen = () => {
   };
 
   // Dynamic nutrition breakdown component
-  const NutritionBreakdown = ({dailyGoal, todayActivity}) => {
-    const totalCarbs = todayActivity?.totalCarbs || 0;
-    const totalProtein = todayActivity?.totalProtein || 0;
-    const totalFat = todayActivity?.totalFat || 0;
+  const NutritionBreakdown = ({goal, activity}) => {
+    const totalCarbs = activity?.totalCarbs || 0;
+    const totalProtein = activity?.totalProtein || 0;
+    const totalFat = activity?.totalFat || 0;
 
     // Macro goals: simple default split (50% carbs, 20% protein, 30% fat)
-    const carbGoal = Math.round((dailyGoal * 0.5) / 4);
-    const proteinGoal = Math.round((dailyGoal * 0.2) / 4);
-    const fatGoal = Math.round((dailyGoal * 0.3) / 9);
+    const carbGoal = Math.round((goal * 0.5) / 4);
+    const proteinGoal = Math.round((goal * 0.2) / 4);
+    const fatGoal = Math.round((goal * 0.3) / 9);
 
     const pct = (value, goal) =>
       Math.min(100, goal > 0 ? (value / goal) * 100 : 0);
@@ -115,7 +115,7 @@ const CaloriesScreen = () => {
                 {item.value}g / {item.goal}g
               </Text>
             </View>
-            <View style={[styles.progressBar, {marginTop: 8}]}>
+            <View style={[styles.progressBar, styles.progressBarMargin]}>
               <View
                 style={[
                   styles.progressFill,
@@ -150,7 +150,7 @@ const CaloriesScreen = () => {
               style={[
                 styles.title,
                 styles.textWhite,
-                {fontSize: width * 0.12},
+                {fontSize: width * 0.1, paddingTop: 10},
               ]}>
               {remaining}
             </Text>
@@ -166,30 +166,14 @@ const CaloriesScreen = () => {
               </Text>
               <Text style={[styles.caption, styles.textWhite]}>Goal</Text>
             </View>
-            <View
-              style={[
-                {
-                  width: 1,
-                  height: 30,
-                  backgroundColor: 'rgba(255,255,255,0.3)',
-                },
-              ]}
-            />
+            <View style={styles.divider} />
             <View style={styles.alignCenter}>
               <Text style={[styles.statNumber, styles.textWhite]}>
                 {consumed}
               </Text>
               <Text style={[styles.caption, styles.textWhite]}>Consumed</Text>
             </View>
-            <View
-              style={[
-                {
-                  width: 1,
-                  height: 30,
-                  backgroundColor: 'rgba(255,255,255,0.3)',
-                },
-              ]}
-            />
+            <View style={styles.divider} />
             <View style={styles.alignCenter}>
               <Text style={[styles.statNumber, styles.textWhite]}>
                 {remaining > 0 ? remaining : 0}
@@ -241,7 +225,7 @@ const CaloriesScreen = () => {
           ) : (
             meals.map(meal => (
               <View key={meal.id} style={styles.listItem}>
-                <View style={{flex: 1}}>
+                <View style={styles.flexContainer}>
                   <View style={[styles.row, styles.spaceBetween]}>
                     <Text style={styles.listItemText}>{meal.name}</Text>
                     <View style={styles.alignCenter}>
@@ -251,7 +235,7 @@ const CaloriesScreen = () => {
                       </Text>
                     </View>
                   </View>
-                  <View style={{marginTop: 8}}>
+                  <View style={styles.marginTop8}>
                     {meal.foods.map((food, index) => (
                       <Text key={index} style={styles.listItemSecondary}>
                         • {food}
@@ -265,10 +249,7 @@ const CaloriesScreen = () => {
         </View>
 
         {/* Nutrition Summary */}
-        <NutritionBreakdown
-          dailyGoal={dailyGoal}
-          todayActivity={todayActivity}
-        />
+        <NutritionBreakdown goal={dailyGoal} activity={todayActivity} />
       </ScrollView>
     </SafeAreaView>
   );

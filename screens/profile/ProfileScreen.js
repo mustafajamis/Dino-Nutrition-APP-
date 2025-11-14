@@ -274,37 +274,31 @@ const ProfileScreen = () => {
           <Text style={styles.sectionTitle}>Settings</Text>
 
           {menuItems.map(item => (
-            <TouchableOpacity
+            <View
               key={item.id}
-              style={styles.listItem}
-              onPress={item.action}>
-              <View style={styles.row}>
-                <View
-                  style={[
-                    styles.actionCard,
-                    {width: 40, height: 40, marginRight: 15},
-                  ]}>
-                  <Text style={{fontSize: 18}}>{item.icon}</Text>
-                </View>
-                <View style={{flex: 1}}>
-                  <Text style={styles.listItemText}>{item.title}</Text>
-                  <Text style={styles.listItemSecondary}>{item.subtitle}</Text>
-                </View>
+              style={[
+                styles.listItem,
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingVertical: 12,
+                },
+              ]}>
+              <View style={{flex: 1}}>
+                <Text style={styles.listItemText}>{item.title}</Text>
+                <Text style={styles.listItemSecondary}>{item.subtitle}</Text>
               </View>
-              <Text style={styles.caption}>›</Text>
-            </TouchableOpacity>
+            </View>
           ))}
 
           {/* Toggle Settings */}
-          <View style={[styles.listItem, styles.spaceBetween]}>
+          <View
+            style={[
+              styles.listItem,
+              styles.spaceBetween,
+              {flexDirection: 'row', alignItems: 'center', paddingVertical: 12},
+            ]}>
             <View style={styles.row}>
-              <View
-                style={[
-                  styles.actionCard,
-                  {width: 40, height: 40, marginRight: 15},
-                ]}>
-                <Text style={{fontSize: 18}}>🔔</Text>
-              </View>
               <View>
                 <Text style={styles.listItemText}>Push Notifications</Text>
                 <Text style={styles.listItemSecondary}>
@@ -323,15 +317,13 @@ const ProfileScreen = () => {
             />
           </View>
 
-          <View style={[styles.listItem, styles.spaceBetween]}>
+          <View
+            style={[
+              styles.listItem,
+              styles.spaceBetween,
+              {flexDirection: 'row', alignItems: 'center', paddingVertical: 12},
+            ]}>
             <View style={styles.row}>
-              <View
-                style={[
-                  styles.actionCard,
-                  {width: 40, height: 40, marginRight: 15},
-                ]}>
-                <Text style={{fontSize: 18}}>{isDark ? '☀️' : '🌙'}</Text>
-              </View>
               <View>
                 <Text style={styles.listItemText}>Dark Mode</Text>
                 <Text style={styles.listItemSecondary}>Use dark theme</Text>
@@ -348,15 +340,13 @@ const ProfileScreen = () => {
             />
           </View>
 
-          <View style={[styles.listItem, styles.spaceBetween]}>
+          <View
+            style={[
+              styles.listItem,
+              styles.spaceBetween,
+              {flexDirection: 'row', alignItems: 'center', paddingVertical: 12},
+            ]}>
             <View style={styles.row}>
-              <View
-                style={[
-                  styles.actionCard,
-                  {width: 40, height: 40, marginRight: 15},
-                ]}>
-                <Text style={{fontSize: 18}}>🔒</Text>
-              </View>
               <View>
                 <Text style={styles.listItemText}>Private Profile</Text>
                 <Text style={styles.listItemSecondary}>
@@ -387,13 +377,6 @@ const ProfileScreen = () => {
               );
             }}>
             <View style={styles.row}>
-              <View
-                style={[
-                  styles.actionCard,
-                  {width: 40, height: 40, marginRight: 15},
-                ]}>
-                <Text style={{fontSize: 18}}>❓</Text>
-              </View>
               <Text style={styles.listItemText}>Help & Support</Text>
             </View>
           </TouchableOpacity>

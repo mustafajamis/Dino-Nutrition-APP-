@@ -15,6 +15,22 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {useAuth} from '../../context/AuthContext';
 import {recognizeFood, getTopFoodItem} from '../../src/api/foodRecognition';
 
+// Simple manual fallbacks for a few common foods
+const fallbackNutrition = {
+  pizza: {calories: 350, carbs: 45, protein: 15, fat: 14},
+  pasta: {calories: 158, carbs: 31, protein: 6, fat: 1},
+  rice: {calories: 130, carbs: 28, protein: 2, fat: 0},
+};
+
+const getFallbackNutrition = foodName => {
+  const lower = (foodName || '').toLowerCase();
+  if (lower.includes('pizza')) return fallbackNutrition.pizza;
+  if (lower.includes('pasta') || lower.includes('spaghetti'))
+    return fallbackNutrition.pasta;
+  if (lower.includes('rice')) return fallbackNutrition.rice;
+  return null;
+};
+
 const FoodScannerScreen = () => {
   const {addMeal} = useAuth();
   const [selectedMealType, setSelectedMealType] = useState('');
@@ -31,57 +47,39 @@ const FoodScannerScreen = () => {
     try {
       setScanning(true);
 
-      // Call the Calorie Mama API
       const response = await recognizeFood(imageUri, true);
-
-      // Debug: Log the full response
       console.log('Full API Response:', JSON.stringify(response, null, 2));
 
-      // Get the top recognized food item
       const topItem = getTopFoodItem(response);
-
-      // Debug: Log the top item
       console.log('Top Food Item:', JSON.stringify(topItem, null, 2));
 
       if (topItem) {
-        // Debug: Log individual nutrition values
-        console.log('Nutrition Values:');
-        console.log('- Calories:', topItem.nutrition.calories);
-        console.log('- Carbs:', topItem.nutrition.totalCarbs);
-        console.log('- Protein:', topItem.nutrition.protein);
-        console.log('- Fat:', topItem.nutrition.totalFat);
+        const n = topItem.nutrition || {};
+        const fb = getFallbackNutrition(topItem.name);
+        console.log('Nutrition Values from Calorie Mama (per serving):', n);
 
-        // Set food name
-        setFoodName(topItem.name);
+        setFoodName(topItem.name || '');
 
-        // Set nutrition values with fallbacks for pizza if they're missing
-        const calories =
-          topItem.nutrition.calories ||
-          (topItem.name.toLowerCase().includes('pizza') ? 350 : 0);
-        const carbs =
-          topItem.nutrition.totalCarbs ||
-          (topItem.name.toLowerCase().includes('pizza') ? 45 : 0);
-        const protein =
-          topItem.nutrition.protein ||
-          (topItem.name.toLowerCase().includes('pizza') ? 15 : 0);
-        const fat =
-          topItem.nutrition.totalFat ||
-          (topItem.name.toLowerCase().includes('pizza') ? 14 : 0);
+        // Prefer API values; if missing/zero and we have a fallback, use fallback
+        const cal = n.calories || (fb ? fb.calories : undefined);
+        const c = n.totalCarbs || (fb ? fb.carbs : undefined);
+        const p = n.protein || (fb ? fb.protein : undefined);
+        const f = n.totalFat || (fb ? fb.fat : undefined);
 
-        setCalories(calories.toString());
-        setCarbs(carbs.toString());
-        setProtein(protein.toString());
-        setFat(fat.toString());
+        setCalories(cal != null ? String(Math.round(cal)) : '');
+        setCarbs(c != null ? String(c) : '');
+        setProtein(p != null ? String(p) : '');
+        setFat(f != null ? String(f) : '');
 
         const servingInfo = topItem.servingInfo || 'per serving';
 
         Alert.alert(
           'Food Detected!',
           `${topItem.name}\n${servingInfo}\n\n` +
-            `Calories: ${calories}\n` +
-            `Carbs: ${carbs}g\n` +
-            `Protein: ${protein}g\n` +
-            `Fat: ${fat}g\n\n` +
+            `Calories: ${cal ?? '—'}\n` +
+            `Carbs: ${c ?? '—'}g\n` +
+            `Protein: ${p ?? '—'}g\n` +
+            `Fat: ${f ?? '—'}g\n\n` +
             'Please verify the values and select meal type.',
           [{text: 'OK'}],
         );
@@ -278,7 +276,12 @@ const FoodScannerScreen = () => {
             />
           </View>
 
-          <MacroSummary carbs={carbs} protein={protein} fat={fat} />
+          <MacroSummary
+            carbs={carbs}
+            protein={protein}
+            fat={fat}
+            calories={calories}
+          />
 
           {/* Meal Type Selection */}
           <View style={styles.inputContainer}>
@@ -313,11 +316,17 @@ const FoodScannerScreen = () => {
   );
 };
 
-const MacroSummary = ({carbs, protein, fat}) => {
+const MacroSummary = ({carbs, protein, fat, calories}) => {
   const c = parseFloat(carbs) || 0;
   const p = parseFloat(protein) || 0;
   const f = parseFloat(fat) || 0;
-  const caloriesEstimate = c * 4 + p * 4 + f * 9;
+
+  const macroBasedCalories = c * 4 + p * 4 + f * 9;
+  const apiCalories = parseFloat(calories);
+  const caloriesEstimate = !isNaN(apiCalories) && apiCalories > 0
+    ? apiCalories
+    : macroBasedCalories;
+
   return (
     <View
       style={{
@@ -333,7 +342,7 @@ const MacroSummary = ({carbs, protein, fat}) => {
         Carbs: {c}g · Protein: {p}g · Fat: {f}g
       </Text>
       <Text style={{color: '#666', marginTop: 2}}>
-        Estimated macro calories: {caloriesEstimate} kcal
+        Estimated macro calories: {Math.round(caloriesEstimate)} kcal
       </Text>
     </View>
   );
