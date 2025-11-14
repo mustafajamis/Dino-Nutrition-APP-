@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {signup } from '../../api/auth';
 import {
   View,
   Text,
@@ -59,7 +58,11 @@ const SignupScreen = ({navigation}) => {
   };
 
   const handleSignup = async () => {
-    if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim()) {
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.password.trim()
+    ) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -71,18 +74,30 @@ const SignupScreen = ({navigation}) => {
 
     setLoading(true);
     try {
-      const signupData = { ...formData, username: formData.name };
-      const result = await signup(signupData);
+      const result = await signup({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+      });
+
       if (result.success) {
-        await signup(formData.name.trim(), formData.email.trim(), formData.password);
-        Alert.alert('Welcome to Dino! 🦕', 'Your account has been created successfully! Let\'s start your healthy journey.', [
-          {text: 'Let\'s Go!', onPress: () => navigation.navigate('Main')},
-        ]);
+        Alert.alert(
+          'Welcome to Dino! 🦕',
+          "Your account has been created successfully! Let's start your healthy journey.",
+          [{text: "Let's Go!", onPress: () => navigation.navigate('Main')}],
+        );
       } else {
-        Alert.alert('Error', result.error);
+        Alert.alert(
+          'Error',
+          result.error || 'Something went wrong. Please try again.',
+        );
       }
     } catch (error) {
-      Alert.alert('Error', 'Something went wrong. Please try again.');
+      console.error('Signup error:', error);
+      Alert.alert(
+        'Error',
+        'Network connection failed. Please check your internet connection and try again.',
+      );
     } finally {
       setLoading(false);
     }
@@ -115,7 +130,7 @@ const SignupScreen = ({navigation}) => {
                 styles.formContainer,
                 {
                   opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
+                  transform: [{translateY: slideAnim}],
                 },
               ]}>
               <Text style={styles.title}>Start your healthy journey with</Text>
@@ -130,7 +145,7 @@ const SignupScreen = ({navigation}) => {
                   autoCapitalize="words"
                   autoCorrect={false}
                   value={formData.name}
-                  onChangeText={(text) => handleInputChange('name', text)}
+                  onChangeText={text => handleInputChange('name', text)}
                   accessibilityLabel="Name input field"
                   accessibilityHint="Enter your full name"
                 />
@@ -147,7 +162,7 @@ const SignupScreen = ({navigation}) => {
                   autoCapitalize="none"
                   autoCorrect={false}
                   value={formData.email}
-                  onChangeText={(text) => handleInputChange('email', text)}
+                  onChangeText={text => handleInputChange('email', text)}
                   accessibilityLabel="Email input field"
                   accessibilityHint="Enter your email address"
                 />
@@ -155,31 +170,30 @@ const SignupScreen = ({navigation}) => {
               </View>
 
               {/* Password */}
-              {/* Password */}
-                <Text style={styles.label}>Password</Text>
-                 <View style={styles.inputWrapper}>
-                  <TextInput
-                   style={styles.input}
-                   placeholder="Enter your password"
-                secureTextEntry={secureText}
-                   autoCapitalize="none"
-                     autoCorrect={false}
-                     textContentType="none"
-                     autoComplete="off"
-                   importantForAutofill="no"
-                     enablesReturnKeyAutomatically
-                 spellCheck={false}
-                   contextMenuHidden
-                    returnKeyType="done"
-                   value={formData.password}
-                   onChangeText={(text) => handleInputChange('password', text)}
+              <Text style={styles.label}>Password</Text>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your password"
+                  secureTextEntry={secureText}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  textContentType="none"
+                  autoComplete="off"
+                  importantForAutofill="no"
+                  enablesReturnKeyAutomatically
+                  spellCheck={false}
+                  contextMenuHidden
+                  returnKeyType="done"
+                  value={formData.password}
+                  onChangeText={text => handleInputChange('password', text)}
                   accessibilityLabel="Password input field"
                   accessibilityHint="Enter your account password"
-                 />
-                  <TouchableOpacity onPress={() => setSecureText(!secureText)}>
+                />
+                <TouchableOpacity onPress={() => setSecureText(!secureText)}>
                   <Text style={styles.inputIcon}>👁️</Text>
-                 </TouchableOpacity>
-                   </View>
+                </TouchableOpacity>
+              </View>
 
               {/* Signup Button */}
               <TouchableOpacity

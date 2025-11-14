@@ -1,9 +1,20 @@
-import React, {createContext, useContext, useState, useEffect, useCallback} from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import DatabaseService from '../services/DatabaseService';
 // Use Supabase for real authentication
-import { signIn as supaSignIn, signUp as supaSignUp, signOut as supaSignOut, requestPasswordReset } from '../src/api/auth';
-import { upsertDailyTotals, toDateOnly } from '../src/api/dailyTotals';
-import { supabase } from '../src/lib/supabase';
+import {
+  signIn as supaSignIn,
+  signUp as supaSignUp,
+  signOut as supaSignOut,
+  requestPasswordReset,
+} from '../src/api/auth';
+import {upsertDailyTotals, toDateOnly} from '../src/api/dailyTotals';
+import {supabase} from '../src/lib/supabase';
 
 const AuthContext = createContext();
 
@@ -23,7 +34,7 @@ export const AuthProvider = ({children}) => {
   useEffect(() => {
     checkAuthStatus();
     // Listen for auth state changes to keep user in sync across tabs/refreshes
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {data: sub} = supabase.auth.onAuthStateChange((_event, session) => {
       const supaUser = session?.user ?? null;
       setUser(supaUser);
       if (supaUser) {
@@ -45,8 +56,10 @@ export const AuthProvider = ({children}) => {
   const checkAuthStatus = async () => {
     try {
       // Prefer Supabase session if available
-      const { data, error } = await supabase.auth.getUser();
-      if (error) throw error;
+      const {data, error} = await supabase.auth.getUser();
+      if (error) {
+        throw error;
+      }
       if (data?.user) {
         setUser(data.user);
         // Try to merge profile details from Supabase
@@ -55,14 +68,22 @@ export const AuthProvider = ({children}) => {
       }
 
       // Fallback: legacy local user (for offline/local-only mode)
-      const currentUser = await DatabaseService.getCurrentUser();
-      if (currentUser) {
-        setUser(currentUser);
+      try {
+        const currentUser = await DatabaseService.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+        }
+      } catch (storageError) {
+        console.warn(
+          'Local storage unavailable, continuing without stored user:',
+          storageError,
+        );
+        // Continue without cached user data
       }
     } catch (error) {
-      if (error?.name === 'AuthSessionMissingError'){
+      if (error?.name === 'AuthSessionMissingError') {
         setUser(null);
-      } else{
+      } else {
         console.error('Error checking auth status:', error);
       }
     } finally {
@@ -71,15 +92,19 @@ export const AuthProvider = ({children}) => {
   };
 
   // Pulls the profile row from Supabase and merges app-specific fields into our user object
-  const mergeSupabaseProfileIntoUser = async (supaUser) => {
+  const mergeSupabaseProfileIntoUser = async supaUser => {
     try {
-      const { data: profile, error } = await supabase
+      const {data: profile, error} = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', supaUser.id)
         .maybeSingle();
-      if (error) throw error;
-      if (!profile) return; // nothing to merge
+      if (error) {
+        throw error;
+      }
+      if (!profile) {
+        return;
+      } // nothing to merge
 
       // Map snake_case columns to our camelCase expectations
       const mapped = {
@@ -87,16 +112,16 @@ export const AuthProvider = ({children}) => {
         name: profile.display_name ?? supaUser?.user_metadata?.display_name,
       };
 
-      const mergedUser = { ...supaUser, ...mapped };
+      const mergedUser = {...supaUser, ...mapped};
       setUser(mergedUser);
       await DatabaseService.setCurrentUser(mergedUser);
-    } catch (e) {
-  
-    }
+    } catch (e) {}
   };
 
   const loadTodayActivity = useCallback(async () => {
-    if (!user) {return;}
+    if (!user) {
+      return;
+    }
 
     try {
       const activity = await DatabaseService.getTodayActivity(user.id);
@@ -120,41 +145,55 @@ export const AuthProvider = ({children}) => {
         password = maybePassword;
       }
 
-      const { emailConfirmationRequired, user } = await supaSignUp(name, email, password);
+      const {emailConfirmationRequired, user} = await supaSignUp(
+        name,
+        email,
+        password,
+      );
       // If confirmation is required, user may be null here (no session yet)
       if (user) {
         setUser(user);
       }
-      return { success: true, user, emailConfirmationRequired: !!emailConfirmationRequired };
+      return {
+        success: true,
+        user,
+        emailConfirmationRequired: !!emailConfirmationRequired,
+      };
     } catch (error) {
       console.error('Signup error:', error);
-      return { success: false, error: error.message || 'Signup failed' };
+      return {success: false, error: error.message || 'Signup failed'};
     }
   };
 
   const login = async (email, password) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const {data, error} = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       const user = data?.user ?? null;
       if (user) {
         setUser(user);
-        return { success: true, user };
+        return {success: true, user};
       }
-      return { success: false, error: 'Invalid email or password' };
+      return {success: false, error: 'Invalid email or password'};
     } catch (error) {
       console.error('Login error:', error);
       // Surface Supabase error message to the UI for clarity (e.g., wrong_password, invalid_credentials)
-      return { success: false, error: error?.message || 'Login failed' };
+      return {success: false, error: error?.message || 'Login failed'};
     }
   };
 
-  const resetPassword = async (email) => {
+  const resetPassword = async email => {
     try {
       await requestPasswordReset(email);
-      return { success: true };
+      return {success: true};
     } catch (error) {
       console.error('Reset password error:', error);
-      return { success: false, error: error?.message || 'Could not send reset email' };
+      return {
+        success: false,
+        error: error?.message || 'Could not send reset email',
+      };
     }
   };
 
@@ -168,23 +207,29 @@ export const AuthProvider = ({children}) => {
     }
   };
 
-  const updateProfile = async (updateData) => {
-    if (!user) {return {success: false, error: 'No user logged in'};}
+  const updateProfile = async updateData => {
+    if (!user) {
+      return {success: false, error: 'No user logged in'};
+    }
 
     try {
       // Try to persist to Supabase profile first (non-fatal if it fails due to RLS)
       try {
-        const supaUpdate = { user_id: user.id };
-        if (Object.prototype.hasOwnProperty.call(updateData, 'dailyCalorieGoal')) {
+        const supaUpdate = {user_id: user.id};
+        if (
+          Object.prototype.hasOwnProperty.call(updateData, 'dailyCalorieGoal')
+        ) {
           supaUpdate.daily_calorie_goal = updateData.dailyCalorieGoal;
         }
         if (Object.prototype.hasOwnProperty.call(updateData, 'name')) {
           supaUpdate.display_name = updateData.name;
         }
         // Only call upsert when we actually have fields to update beyond user_id
-        const { daily_calorie_goal, display_name } = supaUpdate;
+        const {daily_calorie_goal, display_name} = supaUpdate;
         if (daily_calorie_goal !== undefined || display_name !== undefined) {
-          await supabase.from('profiles').upsert(supaUpdate, { onConflict: 'user_id' });
+          await supabase
+            .from('profiles')
+            .upsert(supaUpdate, {onConflict: 'user_id'});
         }
       } catch (e) {
         // Ignore; local cache will still be updated
@@ -193,7 +238,7 @@ export const AuthProvider = ({children}) => {
 
       // Persist locally but do not replace in-memory user; merge to keep details
       await DatabaseService.updateUser(user.id, updateData);
-      const mergedUser = { ...user, ...updateData };
+      const mergedUser = {...user, ...updateData};
       await DatabaseService.setCurrentUser(mergedUser);
       setUser(mergedUser);
       return {success: true, user: mergedUser};
@@ -203,8 +248,10 @@ export const AuthProvider = ({children}) => {
     }
   };
 
-  const addMeal = async (mealData) => {
-    if (!user) {return {success: false, error: 'No user logged in'};}
+  const addMeal = async mealData => {
+    if (!user) {
+      return {success: false, error: 'No user logged in'};
+    }
 
     try {
       const updatedActivity = await DatabaseService.addDailyActivity(user.id, {
@@ -235,7 +282,9 @@ export const AuthProvider = ({children}) => {
   };
 
   const getMonthlyStats = async () => {
-    if (!user) {return {};}
+    if (!user) {
+      return {};
+    }
 
     try {
       return await DatabaseService.getMonthlyStats(user.id);
@@ -249,12 +298,14 @@ export const AuthProvider = ({children}) => {
     await loadTodayActivity();
   };
 
-  const setDailyGoal = async (goal) => {
-    if (!user) {return {success: false, error: 'No user logged in'};}
+  const setDailyGoal = async goal => {
+    if (!user) {
+      return {success: false, error: 'No user logged in'};
+    }
 
     try {
-      await DatabaseService.updateUser(user.id, { dailyCalorieGoal: goal });
-      const mergedUser = { ...user, dailyCalorieGoal: goal };
+      await DatabaseService.updateUser(user.id, {dailyCalorieGoal: goal});
+      const mergedUser = {...user, dailyCalorieGoal: goal};
       await DatabaseService.setCurrentUser(mergedUser);
       setUser(mergedUser);
       return {success: true, user: mergedUser};
@@ -270,7 +321,7 @@ export const AuthProvider = ({children}) => {
     todayActivity,
     signup,
     login,
-  resetPassword,
+    resetPassword,
     logout,
     updateProfile,
     addMeal,
