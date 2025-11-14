@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
@@ -10,17 +9,19 @@ import {
   Alert,
 } from 'react-native';
 import {useAuth} from '../../context/AuthContext';
+import {useTheme} from '../../context/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
+import {colors} from '../../style/Theme';
 
 const {width} = Dimensions.get('window');
 
 const CaloriesScreen = () => {
   const {user, todayActivity, addMeal} = useAuth();
+  const {styles} = useTheme();
   const navigation = useNavigation();
   const [dailyGoal, setDailyGoal] = useState(2000);
   const [consumed, setConsumed] = useState(0);
   const [meals, setMeals] = useState([]);
-  const [darkModeEnabled] = useState(true); // Dark mode default
 
   useEffect(() => {
     if (user) {
@@ -36,17 +37,23 @@ const CaloriesScreen = () => {
   }, [todayActivity]);
 
   const remaining = dailyGoal - consumed;
-  const progressPercentage = Math.min((consumed / dailyGoal) * 100, 100);
 
-  // Add macro estimates (g) for quick adds. Values are approximate.
+  // Add macro estimates for quick adds
   const quickAddFoods = [
     {name: 'Banana', calories: 95, icon: '🍌', carbs: 24, protein: 1, fat: 0.3},
-    {name: 'Apple', calories: 80, icon: '🍎', carbs: 21, protein: 0.3, fat: 0.2},
+    {
+      name: 'Apple',
+      calories: 80,
+      icon: '🍎',
+      carbs: 21,
+      protein: 0.3,
+      fat: 0.2,
+    },
     {name: 'Almonds', calories: 160, icon: '🥜', carbs: 6, protein: 6, fat: 14},
     {name: 'Water', calories: 0, icon: '💧', carbs: 0, protein: 0, fat: 0},
   ];
 
-  const handleQuickAdd = async (food) => {
+  const handleQuickAdd = async food => {
     if (!user) {
       Alert.alert('Error', 'Please log in to add food');
       return;
@@ -63,93 +70,64 @@ const CaloriesScreen = () => {
 
     if (result.success) {
       Alert.alert('Success', `${food.name} added to your diary!`);
-      // Removed automatic navigation; stay on Calories screen
     } else {
       Alert.alert('Error', result.error);
     }
   };
 
   const handleAddMeal = () => {
-    navigation.navigate('Scan', { source: 'calories_add_meal_button' });
-  };
-
-  const addMealDialog = (mealType) => {
-    Alert.prompt(
-      `Add ${mealType}`,
-      'Enter food name and calories (e.g., "Chicken Salad, 350"):',
-      [
-        {text: 'Cancel', style: 'cancel'},
-        {
-          text: 'Add',
-          onPress: async (input) => {
-            if (input) {
-              const parts = input.split(',');
-              const foodName = parts[0]?.trim();
-              const calories = parseInt(parts[1]?.trim(), 10) || 0;
-
-              if (foodName && calories > 0) {
-                const result = await addMeal({
-                  name: mealType,
-                  calories: calories,
-                  foods: [foodName],
-                  // Manual quick prompt doesn't know macros; leave zeros or derive later
-                  carbs: 0,
-                  protein: 0,
-                  fat: 0,
-                });
-
-                if (result.success) {
-                  Alert.alert('Success', 'Meal added successfully!');
-                  navigation.navigate('Scan', { source: 'calories_manual_add', mealType });
-                } else {
-                  Alert.alert('Error', result.error);
-                }
-              } else {
-                Alert.alert('Error', 'Please enter valid food name and calories');
-              }
-            }
-          },
-        },
-      ],
-      'plain-text'
-    );
+    navigation.navigate('Scan', {source: 'calories_add_meal_button'});
   };
 
   // Dynamic nutrition breakdown component
-  const NutritionBreakdown = ({ dailyGoal, todayActivity }) => {
-    // Derive totals from todayActivity (fallback 0)
-    const totalCarbs = todayActivity?.totalCarbs || 0; // grams
+  const NutritionBreakdown = ({dailyGoal, todayActivity}) => {
+    const totalCarbs = todayActivity?.totalCarbs || 0;
     const totalProtein = todayActivity?.totalProtein || 0;
     const totalFat = todayActivity?.totalFat || 0;
 
     // Macro goals: simple default split (50% carbs, 20% protein, 30% fat)
-    // Calories per gram: Carbs 4, Protein 4, Fat 9
     const carbGoal = Math.round((dailyGoal * 0.5) / 4);
     const proteinGoal = Math.round((dailyGoal * 0.2) / 4);
     const fatGoal = Math.round((dailyGoal * 0.3) / 9);
 
-    const pct = (value, goal) => Math.min(100, goal > 0 ? (value / goal) * 100 : 0);
+    const pct = (value, goal) =>
+      Math.min(100, goal > 0 ? (value / goal) * 100 : 0);
 
     const macroItems = [
-      { label: 'Carbs', value: totalCarbs, goal: carbGoal, color: '#FF6B6B' },
-      { label: 'Protein', value: totalProtein, goal: proteinGoal, color: '#4ECDC4' },
-      { label: 'Fat', value: totalFat, goal: fatGoal, color: '#45B7D1' },
+      {label: 'Carbs', value: totalCarbs, goal: carbGoal, color: '#FF6B6B'},
+      {
+        label: 'Protein',
+        value: totalProtein,
+        goal: proteinGoal,
+        color: '#4ECDC4',
+      },
+      {label: 'Fat', value: totalFat, goal: fatGoal, color: '#45B7D1'},
     ];
 
     return (
-      <View style={styles.nutritionSection}>
+      <View style={[styles.card, styles.marginBottom]}>
         <Text style={styles.sectionTitle}>Nutrition Breakdown</Text>
-        <View style={styles.nutritionGrid}>
-          {macroItems.map(item => (
-            <View key={item.label} style={styles.nutritionItem}>
-              <Text style={styles.nutritionLabel}>{item.label}</Text>
-              <Text style={styles.nutritionValue}>{item.value}g / {item.goal}g</Text>
-              <View style={styles.nutritionBar}>
-                <View style={[styles.nutritionProgress, { width: `${pct(item.value, item.goal)}%`, backgroundColor: item.color }]} />
-              </View>
+        {macroItems.map(item => (
+          <View key={item.label} style={styles.marginBottom}>
+            <View style={[styles.row, styles.spaceBetween]}>
+              <Text style={styles.bodyText}>{item.label}</Text>
+              <Text style={styles.bodyTextSecondary}>
+                {item.value}g / {item.goal}g
+              </Text>
             </View>
-          ))}
-        </View>
+            <View style={[styles.progressBar, {marginTop: 8}]}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${pct(item.value, item.goal)}%`,
+                    backgroundColor: item.color,
+                  },
+                ]}
+              />
+            </View>
+          </View>
+        ))}
       </View>
     );
   };
@@ -159,92 +137,134 @@ const CaloriesScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Daily Nutrition</Text>
-          <Text style={styles.headerDate}>Today</Text>
+          <View>
+            <Text style={styles.headerTitle}>Daily Nutrition</Text>
+            <Text style={styles.headerSubtitle}>Today</Text>
+          </View>
         </View>
 
         {/* Calorie Summary Card */}
-        <View style={styles.summaryCard}>
-          <View style={styles.calorieCircle}>
-            {/* Removed progressRing/progressBar overlay to eliminate white circle obstruction */}
-            <View style={styles.calorieContent}>
-              <Text style={styles.remainingCalories}>{remaining}</Text>
-              <Text style={styles.remainingLabel}>Remaining</Text>
-            </View>
+        <View style={styles.cardPrimary}>
+          <View style={styles.alignCenter}>
+            <Text
+              style={[
+                styles.title,
+                styles.textWhite,
+                {fontSize: width * 0.12},
+              ]}>
+              {remaining}
+            </Text>
+            <Text style={[styles.bodyText, styles.textWhite]}>
+              Calories Remaining
+            </Text>
           </View>
 
-          <View style={styles.calorieStats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{dailyGoal}</Text>
-              <Text style={styles.statLabel}>Goal</Text>
+          <View style={[styles.row, styles.spaceAround, {marginTop: 24}]}>
+            <View style={styles.alignCenter}>
+              <Text style={[styles.statNumber, styles.textWhite]}>
+                {dailyGoal}
+              </Text>
+              <Text style={[styles.caption, styles.textWhite]}>Goal</Text>
             </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{consumed}</Text>
-              <Text style={styles.statLabel}>Consumed</Text>
+            <View
+              style={[
+                {
+                  width: 1,
+                  height: 30,
+                  backgroundColor: 'rgba(255,255,255,0.3)',
+                },
+              ]}
+            />
+            <View style={styles.alignCenter}>
+              <Text style={[styles.statNumber, styles.textWhite]}>
+                {consumed}
+              </Text>
+              <Text style={[styles.caption, styles.textWhite]}>Consumed</Text>
             </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{remaining > 0 ? remaining : 0}</Text>
-              <Text style={styles.statLabel}>Remaining</Text>
+            <View
+              style={[
+                {
+                  width: 1,
+                  height: 30,
+                  backgroundColor: 'rgba(255,255,255,0.3)',
+                },
+              ]}
+            />
+            <View style={styles.alignCenter}>
+              <Text style={[styles.statNumber, styles.textWhite]}>
+                {remaining > 0 ? remaining : 0}
+              </Text>
+              <Text style={[styles.caption, styles.textWhite]}>Remaining</Text>
             </View>
           </View>
         </View>
 
         {/* Quick Add Section */}
-        <View style={styles.quickAddSection}>
+        <View style={styles.paddingHorizontal}>
           <Text style={styles.sectionTitle}>Quick Add</Text>
-          <View style={styles.quickAddGrid}>
+          <View style={styles.actionGrid}>
             {quickAddFoods.map((food, index) => (
               <TouchableOpacity
                 key={index}
-                style={styles.quickAddItem}
+                style={styles.actionCard}
                 onPress={() => handleQuickAdd(food)}>
-                <Text style={styles.quickAddIcon}>{food.icon}</Text>
-                <Text style={styles.quickAddName}>{food.name}</Text>
-                <Text style={styles.quickAddCalories}>{food.calories} cal</Text>
+                <Text style={styles.actionIcon}>{food.icon}</Text>
+                <Text style={[styles.actionText, {fontSize: width * 0.03}]}>
+                  {food.name}
+                </Text>
+                <Text style={[styles.caption, {color: colors.primary}]}>
+                  {food.calories} cal
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
         {/* Meals Section */}
-        <View style={styles.mealsSection}>
-          <View style={styles.sectionHeader}>
+        <View style={styles.paddingHorizontal}>
+          <View style={[styles.row, styles.spaceBetween, styles.marginBottom]}>
             <Text style={styles.sectionTitle}>Today's Meals</Text>
             <TouchableOpacity onPress={handleAddMeal}>
-              <Text style={styles.addButton}>+ Add Meal</Text>
+              <Text style={styles.textPrimary}>+ Add Meal</Text>
             </TouchableOpacity>
           </View>
 
           {meals.length === 0 ? (
-            <View style={styles.emptyMeals}>
-              <Text style={styles.emptyText}>No meals logged yet today</Text>
-              <Text style={styles.emptySubtext}>Tap "Add Meal" to get started!</Text>
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>
+                No meals logged yet today
+              </Text>
+              <Text style={styles.emptyStateSubtext}>
+                Tap "Add Meal" to get started!
+              </Text>
             </View>
           ) : (
             meals.map(meal => (
-              <View key={meal.id} style={styles.mealCard}>
-                <View style={styles.mealHeader}>
-                  <Text style={styles.mealName}>{meal.name}</Text>
-                  <View style={styles.mealInfo}>
-                    <Text style={styles.mealTime}>{meal.time}</Text>
-                    <Text style={styles.mealCalories}>{meal.calories} cal</Text>
+              <View key={meal.id} style={styles.listItem}>
+                <View style={{flex: 1}}>
+                  <View style={[styles.row, styles.spaceBetween]}>
+                    <Text style={styles.listItemText}>{meal.name}</Text>
+                    <View style={styles.alignCenter}>
+                      <Text style={styles.caption}>{meal.time}</Text>
+                      <Text style={[styles.bodyText, styles.textPrimary]}>
+                        {meal.calories} cal
+                      </Text>
+                    </View>
                   </View>
-                </View>
-                <View style={styles.mealFoods}>
-                  {meal.foods.map((food, index) => (
-                    <Text key={index} style={styles.foodItem}>
-                      • {food}
-                    </Text>
-                  ))}
+                  <View style={{marginTop: 8}}>
+                    {meal.foods.map((food, index) => (
+                      <Text key={index} style={styles.listItemSecondary}>
+                        • {food}
+                      </Text>
+                    ))}
+                  </View>
                 </View>
               </View>
             ))
           )}
         </View>
 
-        {/* Nutrition Summary (dynamic) */}
+        {/* Nutrition Summary */}
         <NutritionBreakdown
           dailyGoal={dailyGoal}
           todayActivity={todayActivity}
@@ -253,226 +273,5 @@ const CaloriesScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 15,
-  },
-  headerTitle: {
-    fontSize: width * 0.065,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  headerDate: {
-    fontSize: width * 0.04,
-    color: '#666',
-    marginTop: 5,
-  },
-  summaryCard: {
-    backgroundColor: '#91C788',
-    marginHorizontal: 20,
-    borderRadius: 20,
-    padding: 25,
-    marginBottom: 25,
-  },
-  calorieCircle: {
-    alignSelf: 'center',
-    width: 120,
-    height: 120,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-    position: 'relative',
-  },
-  calorieContent: {
-    alignItems: 'center',
-  },
-  remainingCalories: {
-    fontSize: width * 0.08,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  remainingLabel: {
-    fontSize: width * 0.035,
-    color: '#fff',
-    opacity: 0.9,
-  },
-  calorieStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-  },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statNumber: {
-    fontSize: width * 0.045,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  statLabel: {
-    fontSize: width * 0.03,
-    color: '#fff',
-    opacity: 0.9,
-    marginTop: 2,
-  },
-  statDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-  },
-  quickAddSection: {
-    paddingHorizontal: 20,
-    marginBottom: 25,
-  },
-  sectionTitle: {
-    fontSize: width * 0.05,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 15,
-  },
-  quickAddGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  quickAddItem: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 12,
-    padding: 15,
-    alignItems: 'center',
-    width: width * 0.2,
-  },
-  quickAddIcon: {
-    fontSize: 24,
-    marginBottom: 5,
-  },
-  quickAddName: {
-    fontSize: width * 0.03,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 2,
-  },
-  quickAddCalories: {
-    fontSize: width * 0.025,
-    color: '#666',
-  },
-  mealsSection: {
-    paddingHorizontal: 20,
-    marginBottom: 25,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  addButton: {
-    color: '#91C788',
-    fontSize: width * 0.04,
-    fontWeight: '600',
-  },
-  emptyMeals: {
-    alignItems: 'center',
-    paddingVertical: 30,
-  },
-  emptyText: {
-    fontSize: width * 0.04,
-    color: '#666',
-    fontWeight: '500',
-  },
-  emptySubtext: {
-    fontSize: width * 0.035,
-    color: '#999',
-    marginTop: 5,
-  },
-  mealCard: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 10,
-  },
-  mealHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  mealName: {
-    fontSize: width * 0.045,
-    fontWeight: '600',
-    color: '#333',
-  },
-  mealInfo: {
-    alignItems: 'flex-end',
-  },
-  mealTime: {
-    fontSize: width * 0.03,
-    color: '#666',
-  },
-  mealCalories: {
-    fontSize: width * 0.035,
-    fontWeight: '600',
-    color: '#91C788',
-  },
-  mealFoods: {
-    marginLeft: 10,
-  },
-  foodItem: {
-    fontSize: width * 0.035,
-    color: '#666',
-    marginBottom: 2,
-  },
-  nutritionSection: {
-    paddingHorizontal: 20,
-    marginBottom: 30,
-  },
-  nutritionGrid: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 12,
-    padding: 20,
-  },
-  nutritionItem: {
-    marginBottom: 15,
-  },
-  nutritionLabel: {
-    fontSize: width * 0.04,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 5,
-  },
-  nutritionValue: {
-    fontSize: width * 0.035,
-    color: '#666',
-    marginBottom: 8,
-  },
-  nutritionBar: {
-    height: 6,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 3,
-  },
-  nutritionProgress: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  carbsProgress: {
-    width: '65%',
-    backgroundColor: '#FF6B6B',
-  },
-  proteinProgress: {
-    width: '80%',
-    backgroundColor: '#4ECDC4',
-  },
-  fatProgress: {
-    width: '70%',
-    backgroundColor: '#45B7D1',
-  },
-});
 
 export default CaloriesScreen;

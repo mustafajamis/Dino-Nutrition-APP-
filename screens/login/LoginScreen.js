@@ -15,8 +15,9 @@ import {
   Animated,
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
-import {responsiveStyles as styles} from '../../style/ResponsiveUI';
+import {useTheme} from '../../context/ThemeContext';
 import {useAuth} from '../../context/AuthContext';
+import {colors} from '../../style/Theme';
 
 const {width} = Dimensions.get('window');
 
@@ -28,6 +29,7 @@ const LoginScreen = ({navigation}) => {
   });
   const [loading, setLoading] = useState(false);
   const {login, resetPassword} = useAuth();
+  const {styles} = useTheme();
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -64,7 +66,7 @@ const LoginScreen = ({navigation}) => {
 
     setLoading(true);
     try {
-  const result = await login(formData.email, formData.password);
+      const result = await login(formData.email, formData.password);
       if (result.success) {
         navigation.navigate('Main');
       } else {
@@ -80,13 +82,19 @@ const LoginScreen = ({navigation}) => {
   const handleForgotPassword = async () => {
     const email = formData.email.trim();
     if (!email) {
-      Alert.alert('Forgot Password', 'Enter your email above, then tap "Forgot password?"');
+      Alert.alert(
+        'Forgot Password',
+        'Enter your email above, then tap "Forgot password?"',
+      );
       return;
     }
     try {
       const res = await resetPassword(email);
       if (res.success) {
-        Alert.alert('Check your email', 'We sent a password reset link to your inbox.');
+        Alert.alert(
+          'Check your email',
+          'We sent a password reset link to your inbox.',
+        );
       } else {
         Alert.alert('Reset failed', res.error || 'Could not send reset email');
       }
@@ -97,21 +105,21 @@ const LoginScreen = ({navigation}) => {
 
   return (
     <KeyboardAvoidingView
-      style={localStyles.keyboardView}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={localStyles.scrollContainer}>
+          contentContainerStyle={styles.scrollContainer}>
           <SafeAreaView style={styles.container}>
             {/* Top Green Wave using SVG */}
             <Svg
               height="90"
               width={width}
               viewBox="0 0 1440 320"
-              style={styles.greenWave}>
+              style={{position: 'absolute', top: 0}}>
               <Path
-                fill="#91C788"
+                fill={colors.primary}
                 d="M0,160L48,154.7C96,149,192,139,288,144C384,149,480,171,576,165.3C672,160,768,128,864,106.7C960,85,1056,75,1152,80C1248,85,1344,107,1392,117.3L1440,128L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"
               />
             </Svg>
@@ -119,13 +127,16 @@ const LoginScreen = ({navigation}) => {
             {/* Login Form */}
             <Animated.View
               style={[
-                styles.formContainer,
                 {
+                  paddingHorizontal: width * 0.05,
+                  marginTop: 160,
                   opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
+                  transform: [{translateY: slideAnim}],
                 },
               ]}>
-              <Text style={styles.title}>Login to Dino</Text>
+              <Text style={[styles.title, {color: colors.primary}]}>
+                Login to Dino
+              </Text>
 
               {/* Email */}
               <Text style={styles.label}>E-mail</Text>
@@ -136,7 +147,7 @@ const LoginScreen = ({navigation}) => {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   value={formData.email}
-                  onChangeText={(text) => handleInputChange('email', text)}
+                  onChangeText={text => handleInputChange('email', text)}
                   accessibilityLabel="Email input field"
                   accessibilityHint="Enter your email address"
                 />
@@ -160,7 +171,7 @@ const LoginScreen = ({navigation}) => {
                   contextMenuHidden
                   returnKeyType="done"
                   value={formData.password}
-                  onChangeText={(text) => handleInputChange('password', text)}
+                  onChangeText={text => handleInputChange('password', text)}
                   accessibilityLabel="Password input field"
                   accessibilityHint="Enter your account password"
                 />
@@ -172,29 +183,29 @@ const LoginScreen = ({navigation}) => {
               {/* Login Button */}
               <TouchableOpacity
                 style={[
-                  styles.loginButton,
-                  loading && localStyles.loadingButton,
+                  styles.button,
+                  loading && {opacity: 0.8, transform: [{scale: 0.98}]},
                 ]}
                 onPress={handleLogin}
                 disabled={loading}
                 activeOpacity={0.8}>
-                <Text style={styles.loginText}>
+                <Text style={styles.buttonText}>
                   {loading ? 'Logging in...' : 'Login'}
                 </Text>
               </TouchableOpacity>
 
               {/* Forgot Password */}
-              <View style={{ marginTop: 10, alignItems: 'center' }}>
+              <View style={[styles.alignCenter, styles.marginTop]}>
                 <TouchableOpacity onPress={handleForgotPassword}>
-                  <Text style={[styles.link]}>Forgot password?</Text>
+                  <Text style={styles.textPrimary}>Forgot password?</Text>
                 </TouchableOpacity>
               </View>
 
               {/* Footer */}
-              <View style={styles.footerContainer}>
+              <View style={styles.footer}>
                 <Text style={styles.footerText}>Don't have an account</Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-                  <Text style={[styles.link]}> Sign up</Text>
+                  <Text style={styles.footerLink}> Sign up</Text>
                 </TouchableOpacity>
               </View>
             </Animated.View>
@@ -203,19 +214,6 @@ const LoginScreen = ({navigation}) => {
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
-};
-
-const localStyles = {
-  keyboardView: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-  },
-  loadingButton: {
-    opacity: 0.8,
-    transform: [{scale: 0.98}],
-  },
 };
 
 export default LoginScreen;

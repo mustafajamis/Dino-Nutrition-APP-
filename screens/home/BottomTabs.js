@@ -1,6 +1,8 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {View, Image, StyleSheet} from 'react-native';
+import {View, Image} from 'react-native';
+import {useTheme} from '../../context/ThemeContext';
+import {colors} from '../../style/Theme';
 import HomeScreen from '../home/HomeScreen';
 import FoodScannerScreen from '../food/FoodScannerScreen';
 import CaloriesScreen from '../calories/CaloriesScreen';
@@ -9,13 +11,30 @@ import ProfileScreen from '../profile/ProfileScreen';
 const Tab = createBottomTabNavigator();
 
 const BottomTabs = () => {
+  const {isDark} = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#91C788',
-        tabBarInactiveTintColor: '#ccc',
-        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: isDark ? '#888' : '#ccc',
+        tabBarStyle: {
+          height: 70,
+          position: 'absolute',
+          backgroundColor: isDark ? '#2d2d2d' : '#fff',
+          borderTopWidth: 0,
+          shadowColor: '#000',
+          shadowOffset: {width: 0, height: -3},
+          shadowOpacity: 0.1,
+          shadowRadius: 6,
+          elevation: 10,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+          marginBottom: 8,
+        },
       }}>
       {/* Home Tab */}
       <Tab.Screen
@@ -26,7 +45,11 @@ const BottomTabs = () => {
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/HomeIcone.png')}
-              style={[styles.tabIcon, {tintColor: focused ? '#91C788' : '#ccc'}]}
+              style={{
+                width: 24,
+                height: 24,
+                tintColor: focused ? colors.primary : isDark ? '#888' : '#ccc',
+              }}
               resizeMode="contain"
             />
           ),
@@ -42,7 +65,11 @@ const BottomTabs = () => {
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/CaloriesIcon.png')}
-              style={[styles.tabIcon, {tintColor: focused ? '#91C788' : '#ccc'}]}
+              style={{
+                width: 24,
+                height: 24,
+                tintColor: focused ? colors.primary : isDark ? '#888' : '#ccc',
+              }}
               resizeMode="contain"
             />
           ),
@@ -57,10 +84,28 @@ const BottomTabs = () => {
           headerShown: false,
           tabBarLabel: '',
           tabBarIcon: () => (
-            <View style={styles.cameraButton}>
+            <View
+              style={{
+                top: -20,
+                width: 65,
+                height: 65,
+                borderRadius: 32.5,
+                backgroundColor: colors.primary,
+                justifyContent: 'center',
+                alignItems: 'center',
+                shadowColor: '#000',
+                shadowOffset: {width: 0, height: 4},
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 6,
+              }}>
               <Image
                 source={require('../../assets/icons/CameraIcon.png')}
-                style={styles.cameraIcon}
+                style={{
+                  width: 30,
+                  height: 30,
+                  tintColor: '#fff',
+                }}
                 resizeMode="contain"
               />
             </View>
@@ -77,7 +122,11 @@ const BottomTabs = () => {
           tabBarIcon: ({focused}) => (
             <Image
               source={require('../../assets/icons/ProfileIcon.png')}
-              style={[styles.tabIcon, {tintColor: focused ? '#91C788' : '#ccc'}]}
+              style={{
+                width: 24,
+                height: 24,
+                tintColor: focused ? colors.primary : isDark ? '#888' : '#ccc',
+              }}
               resizeMode="contain"
             />
           ),
@@ -86,42 +135,5 @@ const BottomTabs = () => {
     </Tab.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  tabBar: {
-    height: 70,
-    position: 'absolute',
-    backgroundColor: '#fff',
-    borderTopWidth: 0,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: -3},
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 10,
-  },
-  tabIcon: {
-    width: 24,
-    height: 24,
-  },
-  cameraButton: {
-    top: -20,
-    width: 65,
-    height: 65,
-    borderRadius: 32.5,
-    backgroundColor: '#91C788',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 6,
-  },
-  cameraIcon: {
-    width: 30,
-    height: 30,
-    tintColor: '#fff',
-  },
-});
 
 export default BottomTabs;

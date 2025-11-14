@@ -1,6 +1,7 @@
 import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {AuthProvider} from './context/AuthContext';
+import {ThemeProvider} from './context/ThemeContext';
 import AppNavigator from './navigation/AppNavigator';
 import {checkEnvConfig, testSupabaseConnection} from './src/config';
 
@@ -16,10 +17,12 @@ export default function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <AppNavigator />
-      </NavigationContainer>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
